@@ -147,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
                 } catch(DatabaseException e){
                     dataSnapshot1.getKey();
                 }
+                // campus1 == userCampus true
+                // campus2 == userCampus false
+                // male1 == userMale true
+                // male2 == userMale false
             }
         }
 
