@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 reference.addListenerForSingleValueEvent(dataListener);
+                Log.d("asdasda","위에 있는 addListenerForSingleValueEven보다 여기가 먼저 실행 돼서" +
+                        "처음에 시작하기를 누르면 무조건 매칭 실패하는 일이 발생해서 뒤 부분을 onChildChanged와 ValueEventListener 끝으로 옮김");
+                /* 이 부분 삭제됨
                 if(isMatched){
                     Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
                     return;
@@ -74,16 +77,27 @@ public class MainActivity extends AppCompatActivity {
                     postFirebaseDatabase();
                     return;
                 }
+                 */
             }
         });
 
         reference.addChildEventListener(new ChildEventListener(){
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s){
+            public void onChildAdded(DataSnapshot dataSnapshot, String s){ //테이블이 추가될 때 실행
+
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot,String s){
+            public void onChildChanged(DataSnapshot dataSnapshot,String s){ //테이블 내에서 추가, 삭제, 수정 등이 일어날 때 실행
+                if(isMatched){
+                    Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
+                    postFirebaseDatabase();
+                    return;
+                }
             }
 
             @Override
@@ -114,43 +128,70 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("asdasda", dataSnapshot1.getKey());
                 Log.d("asdasda", dataSnapshot1.toString());
                 try{
-                    UserOption get = dataSnapshot1.getValue(UserOption.class);
-
-                    if(userCampus){
-                        if(!get.campus1)    continue;
+                    Map<String, Object> message = (Map<String, Object>)dataSnapshot1.getValue();
+                    UserOption get = new UserOption((Boolean)message.get("campus1"),(Boolean)message.get("campus2"),(Boolean)message.get("male1"),
+                            (Boolean)message.get("male2"),(Boolean)message.get("userCampus"),(Boolean)message.get("userMale"));
+                    //UserOption get = dataSnapshot1.child("value").getValue(UserOption.class); 삭제됨
+                    if(userCampus){  //내가 인사캠인데
+                        if(!get.campus1){
+                            continue;  //상대방이 인사캠 체크 안 함
+                        }
                     }
-                    else{
-                        if(!get.campus2)    continue;
+                    else{  //내가 자과캠인데
+                        if(!get.campus2)    {
+                            continue;  //상대방이 자과캠 체크 안 함
+                        }
                     }
-                    if(userMale){
-                        if(!get.male1)   continue;
+                    if(userMale){  //내가 남잔데
+                        if(!get.male1)   {
+                            continue;  //상대방이 남자 체크 안 함
+                        }
                     }
-                    else{
-                        if(!get.male2)  continue;
+                    else{  //내가 여잔데
+                        if(!get.male2)  {
+                            continue;  //상대방이 여자 체크 안 함
+                        }
                     }
-                    if(get.userMale){
-                        if(!male1.isChecked()) continue;
+                    if(get.userMale){  //상대방 남자인데
+                        if(!male1.isChecked()) {
+                            continue;  //내가 남자에 체크 안 함
+                        }
                     }
-                    else{
-                        if(!male2.isChecked()) continue;
+                    else{  //상대방 여자인데
+                        if(!male2.isChecked()) {
+                            continue;  //내가 여자에 체크 안 함
+                        }
                     }
-                    if(get.userCampus){
-                        if(!campus1.isChecked())  continue;
+                    if(get.userCampus){  // 상대방 인사캠인데
+                        if(!campus1.isChecked())  {
+                            continue;  //내가 인사캠에 체크 안 함
+                        }
                     }
-                    else{
-                        if(!campus2.isChecked())   continue;
+                    else{  // 상대방 자과캠인데
+                        if(!campus2.isChecked())   {
+                            continue;  //내가 자과캠에 체크 안 함
+                        }
                     }
-
                     isMatched = true;
                     userOption = get;
                     break;
                 } catch(DatabaseException e){
                     dataSnapshot1.getKey();
+                    Log.d("asdasda", "데이터베이스 오류");
                 }
-                // campus1 == userCampus true
-                // campus2 == userCampus false
-                // male1 == userMale true
-                // male2 == userMale false
+                // campus1 == userCampus true --> 인사캠
+                // campus2 == userCampus false --> 자과캠
+                // male1 == userMale true --> 이성
+                // male2 == userMale false --> 동성
+            }
+            if(isMatched){
+                Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
+                postFirebaseDatabase();
+                return;
             }
         }
 

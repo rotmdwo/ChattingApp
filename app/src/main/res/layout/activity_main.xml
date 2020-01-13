@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
-            android:text="이성" />
+            android:text="남성" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
@@ -53,12 +53,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="자과캠"/>
+
         <CheckBox
             android:id="@+id/male2"
-            android:layout_marginLeft="40dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="동성"/>
+            android:layout_marginLeft="40dp"
+            android:text="여성" />
     </LinearLayout>
 
     <Button
