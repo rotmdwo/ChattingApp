@@ -17,6 +17,7 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -112,38 +113,40 @@ public class MainActivity extends AppCompatActivity {
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("waiting").getChildren()){
                 Log.d("asdasda", dataSnapshot1.getKey());
                 Log.d("asdasda", dataSnapshot1.toString());
-                UserOption get = dataSnapshot1.getValue(UserOption.class);
-                // campus1 == userCampus true
-                // campus2 == userCampus false
-                // male1 == userMale true
-                // male2 == userMale false
-                if(userCampus){
-                    if(!get.campus1)    continue;
+                try{
+                    UserOption get = dataSnapshot1.getValue(UserOption.class);
+
+                    if(userCampus){
+                        if(!get.campus1)    continue;
+                    }
+                    else{
+                        if(!get.campus2)    continue;
+                    }
+                    if(userMale){
+                        if(!get.male1)   continue;
+                    }
+                    else{
+                        if(!get.male2)  continue;
+                    }
+                    if(get.userMale){
+                        if(!male1.isChecked()) continue;
+                    }
+                    else{
+                        if(!male2.isChecked()) continue;
+                    }
+                    if(get.userCampus){
+                        if(!campus1.isChecked())  continue;
+                    }
+                    else{
+                        if(!campus2.isChecked())   continue;
+                    }
+
+                    isMatched = true;
+                    userOption = get;
+                    break;
+                } catch(DatabaseException e){
+                    dataSnapshot1.getKey();
                 }
-                else{
-                    if(!get.campus2)    continue;
-                }
-                if(userMale){
-                    if(!get.male1)   continue;
-                }
-                else{
-                    if(!get.male2)  continue;
-                }
-                if(get.userMale){
-                    if(!male1.isChecked()) continue;
-                }
-                else{
-                    if(!male2.isChecked()) continue;
-                }
-                if(get.userCampus){
-                    if(!campus1.isChecked())  continue;
-                }
-                else{
-                    if(!campus2.isChecked())   continue;
-                }
-                isMatched = true;
-                userOption = get;
-                break;
             }
         }
 
@@ -156,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     public void postFirebaseDatabase(){
         Map<String, Object> childUpdates = new HashMap<>();
         Map<String, Object> postValues = null;
-        UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userCampus);
+        UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userMale);
         postValues = userOption.toMap();
         childUpdates.put("waiting/"+Long.toString(key), postValues);
         reference.updateChildren(childUpdates);
