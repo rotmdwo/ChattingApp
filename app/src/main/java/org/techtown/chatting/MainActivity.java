@@ -1,19 +1,25 @@
 package org.techtown.chatting;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatCheckBox;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,57 +27,62 @@ import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    private Button button;
-    private EditText editText;
-    private ListView lv_chatting;
-    private ArrayAdapter<String> arrayAdapter;
-    private String str_name;
-    private String str_msg;
-    private String chat_user;
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("message");
+
+    CheckBox campus1;
+    CheckBox campus2;
+    CheckBox male1;
+    CheckBox male2;
+    Button startBtn;
+    Boolean userCampus = true;
+    Boolean userMale = true;
+    long key = 1;
+    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+    UserOption userOption = null;
+    Boolean isMatched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lv_chatting = findViewById(R.id.lv_chatting);
-        button = findViewById(R.id.btn_send);
-        editText = findViewById(R.id.et_msg);
+        campus1 = findViewById(R.id.campus1);
+        campus2 = findViewById(R.id.campus2);
+        male1 = findViewById(R.id.male1);
+        male2 = findViewById(R.id.male2);
+        startBtn = findViewById(R.id.start_btn);
 
-        arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
-        lv_chatting.setAdapter(arrayAdapter);
-
-        lv_chatting.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-
-        str_name = "Guest " + new Random().nextInt(1000);
-
-        button.setOnClickListener(new View.OnClickListener(){
+        startBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                Map<String, Object> map = new HashMap<String,Object>();
-                String key = reference.push().getKey();
-                reference.updateChildren(map);
-                DatabaseReference dbRef =reference.child(key);
-                Map<String, Object> objectMap = new HashMap<String,Object>();
-
-                objectMap.put("str_name",str_name);
-                objectMap.put("text",editText.getText().toString());
-
-                dbRef.updateChildren(objectMap);
-                editText.setText("");
+                if(!campus1.isChecked()&&!campus2.isChecked()){
+                    Toast.makeText(getApplicationContext(), "옵션을 선택해주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(!male1.isChecked()&&!male2.isChecked()){
+                    Toast.makeText(getApplicationContext(), "옵션을 선택해주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                reference.addListenerForSingleValueEvent(dataListener);
+                if(isMatched){
+                    Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
+                    postFirebaseDatabase();
+                    return;
+                }
             }
         });
 
         reference.addChildEventListener(new ChildEventListener(){
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s){
-                chatListener(dataSnapshot);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot,String s){
-                chatListener(dataSnapshot);
             }
 
             @Override
@@ -91,16 +102,63 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void chatListener(DataSnapshot dataSnapshot){
-        Iterator i = dataSnapshot.getChildren().iterator();
+    private void waitingListener(DataSnapshot dataSnapshot){
 
-        while(i.hasNext()){
-            chat_user = (String) ((DataSnapshot) i.next()).getValue();
-            str_msg = (String) ((DataSnapshot) i.next()).getValue();
+    }
 
-            arrayAdapter.add(chat_user+" : " + str_msg);
+    ValueEventListener dataListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("waiting").getChildren()){
+                Log.d("asdasda", dataSnapshot1.getKey());
+                Log.d("asdasda", dataSnapshot1.toString());
+                UserOption get = dataSnapshot1.getValue(UserOption.class);
+                // campus1 == userCampus true
+                // campus2 == userCampus false
+                // male1 == userMale true
+                // male2 == userMale false
+                if(userCampus){
+                    if(!get.campus1)    continue;
+                }
+                else{
+                    if(!get.campus2)    continue;
+                }
+                if(userMale){
+                    if(!get.male1)   continue;
+                }
+                else{
+                    if(!get.male2)  continue;
+                }
+                if(get.userMale){
+                    if(!male1.isChecked()) continue;
+                }
+                else{
+                    if(!male2.isChecked()) continue;
+                }
+                if(get.userCampus){
+                    if(!campus1.isChecked())  continue;
+                }
+                else{
+                    if(!campus2.isChecked())   continue;
+                }
+                isMatched = true;
+                userOption = get;
+                break;
+            }
         }
 
-        arrayAdapter.notifyDataSetChanged();
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+    public void postFirebaseDatabase(){
+        Map<String, Object> childUpdates = new HashMap<>();
+        Map<String, Object> postValues = null;
+        UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userCampus);
+        postValues = userOption.toMap();
+        childUpdates.put("waiting/"+Long.toString(key), postValues);
+        reference.updateChildren(childUpdates);
     }
 }
