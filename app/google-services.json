@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "496021943457",
+    "firebase_url": "https://chatting-6a20a.firebaseio.com",
+    "project_id": "chatting-6a20a",
+    "storage_bucket": "chatting-6a20a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496021943457:android:21b5ef74bb8609f08bece0",
+        "android_client_info": {
+          "package_name": "org.techtown.chatting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "496021943457-cdeeslsq4qaun97b8bko977qcqbnq83l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe33oADzf56ju56SHtZTifK_pS8HPnsMo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "496021943457-cdeeslsq4qaun97b8bko977qcqbnq83l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
