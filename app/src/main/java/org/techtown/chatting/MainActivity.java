@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private String str_msg;
     private String chat_user;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("message");
-    int key;
+    int chatkey=0;
     int msg_key;
 
     @Override
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        if(intent != null) key = intent.getIntExtra("key",0);
+        if(intent != null) chatkey = intent.getIntExtra("key",0);
 
         lv_chatting = findViewById(R.id.lv_chatting);
         button = findViewById(R.id.btn_send);
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
                 objectMap.put("str_name",str_name);
                 objectMap.put("text",editText.getText().toString());
-                objectMap.put("key",key);
+                objectMap.put("key",chatkey);
 
                 dbRef.updateChildren(objectMap);
                 editText.setText("");
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             str_msg = (String) ((DataSnapshot) i.next()).getValue();
             msg_key = (int) ((DataSnapshot) i.next()).getValue();
 
-            if(key==msg_key){
+            if(chatkey==msg_key){
                 arrayAdapter.add(chat_user+" : " + str_msg);
             }
         }
