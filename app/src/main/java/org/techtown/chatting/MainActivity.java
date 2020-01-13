@@ -1,5 +1,6 @@
 package org.techtown.chatting;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -29,11 +30,17 @@ public class MainActivity extends AppCompatActivity {
     private String str_msg;
     private String chat_user;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("message");
+    int key;
+    int msg_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        Intent intent = getIntent();
+        if(intent != null) key = intent.getIntExtra("key",0);
 
         lv_chatting = findViewById(R.id.lv_chatting);
         button = findViewById(R.id.btn_send);
@@ -57,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
                 objectMap.put("str_name",str_name);
                 objectMap.put("text",editText.getText().toString());
+                objectMap.put("key",key);
 
                 dbRef.updateChildren(objectMap);
                 editText.setText("");
@@ -97,8 +105,11 @@ public class MainActivity extends AppCompatActivity {
         while(i.hasNext()){
             chat_user = (String) ((DataSnapshot) i.next()).getValue();
             str_msg = (String) ((DataSnapshot) i.next()).getValue();
+            msg_key = (int) ((DataSnapshot) i.next()).getValue();
 
-            arrayAdapter.add(chat_user+" : " + str_msg);
+            if(key==msg_key){
+                arrayAdapter.add(chat_user+" : " + str_msg);
+            }
         }
 
         arrayAdapter.notifyDataSetChanged();
