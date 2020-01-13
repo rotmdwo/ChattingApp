@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:text="시작하기"
         android:textColor="#FFFFFF"
-        android:background="@drawable/radius"
+
         android:layout_gravity="center"
         android:layout_marginTop="30dp"
         android:padding="10dp"
