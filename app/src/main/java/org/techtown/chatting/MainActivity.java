@@ -89,15 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot,String s){ //테이블 내에서 추가, 삭제, 수정 등이 일어날 때 실행
-                if(isMatched){
-                    Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
-                    postFirebaseDatabase();
-                    return;
-                }
+                reference.addListenerForSingleValueEvent(dataListener);  // 처음에 매칭되지 않고 기다리는 중 다른 사람이 waiting list에 들어올 때 매칭여부 재확인
             }
 
             @Override
