@@ -23,9 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     Boolean userMale = true;
     long key = 1;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference key_reference = FirebaseDatabase.getInstance().getReference().child("key");
+    int already_added_to_waitingList = 0; //자신이 waiting list에 2번 이상 올라가는 걸 방지
 
     UserOption userOption = null;
     Boolean isMatched = false;
@@ -116,6 +116,11 @@ public class MainActivity extends AppCompatActivity {
     ValueEventListener dataListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            for(DataSnapshot dataSnapshot2 : dataSnapshot.child("key").getChildren()){
+                Log.d("asdasda",dataSnapshot2.getValue().toString());
+                key = (Long) dataSnapshot2.getValue();
+            }
+
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("waiting").getChildren()){
                 Log.d("asdasda", dataSnapshot1.getKey());
                 Log.d("asdasda", dataSnapshot1.toString());
@@ -178,10 +183,12 @@ public class MainActivity extends AppCompatActivity {
             }
             if(isMatched){
                 Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
+                Log.d("asdasda",Long.toString(key));
                 return;
             }
             else{
                 Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
+                Log.d("asdasda",Long.toString(key));
                 postFirebaseDatabase();
                 return;
             }
@@ -194,11 +201,18 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void postFirebaseDatabase(){
-        Map<String, Object> childUpdates = new HashMap<>();
-        Map<String, Object> postValues = null;
-        UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userMale);
-        postValues = userOption.toMap();
-        childUpdates.put("waiting/"+Long.toString(key), postValues);
-        reference.updateChildren(childUpdates);
+        if(already_added_to_waitingList == 0){
+            Map<String, Object> childUpdates = new HashMap<>();
+            Map<String, Object> key_childUpdates = new HashMap<>();
+            Map<String, Object> postValues = null;
+            UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userMale);
+            postValues = userOption.toMap();
+            key++;
+            childUpdates.put("waiting/"+Long.toString(key), postValues);
+            key_childUpdates.put("key",key);
+            reference.updateChildren(childUpdates);
+            key_reference.updateChildren(key_childUpdates);
+            already_added_to_waitingList = 1;
+        }
     }
 }
