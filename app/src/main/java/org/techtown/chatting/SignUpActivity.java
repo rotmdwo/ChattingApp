@@ -79,7 +79,7 @@ public class SignUpActivity extends AppCompatActivity {
                 String id = (String)message.get("userId");
                 //Toast.makeText(getApplicationContext(), "받아온 값은 " + id, Toast.LENGTH_LONG).show();
                 if(inputId.equals(id)) {
-                   //아이디가 중복됨
+                    //아이디가 중복됨
                     isIdChecked = false;
                     break;
                 }
