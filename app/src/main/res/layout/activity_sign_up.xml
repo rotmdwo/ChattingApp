@@ -70,7 +70,7 @@
         android:text="성별" />
 
     <RadioGroup
-        android:id="@+id/rdGroup"
+        android:id="@+id/groupGender"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -85,6 +85,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="여성" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="캠퍼스" />
+
+    <RadioGroup
+        android:id="@+id/groupCampus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/rdHuman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="인사캠" />
+
+        <RadioButton
+            android:id="@+id/rdNature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="자과캠" />
     </RadioGroup>
 
     <Button
