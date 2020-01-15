@@ -74,11 +74,17 @@ public class SignUpActivity extends AppCompatActivity {
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("user").getChildren()){
                 //Log.d("asdasda",dataSnapshot1.getValue().toString());
                 //key = (Long) dataSnapshot2.getValue();
-
+                Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                 Log.d("asdasda",dataSnapshot1.getValue().toString());
-                String id = (String)dataSnapshot1.get("userId");
-                Toast.makeText(getApplicationContext(), "받아온 값은 " + id, Toast.LENGTH_LONG).show();
+                String id = (String)message.get("userId");
+                //Toast.makeText(getApplicationContext(), "받아온 값은 " + id, Toast.LENGTH_LONG).show();
+                if(inputId.equals(id)) {
+                   //아이디가 중복됨
+                    isIdChecked = false;
+                    break;
+                }
             }
+            isIdChecked = true;
         }
 
         @Override
