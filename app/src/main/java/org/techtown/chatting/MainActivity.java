@@ -1,218 +1,44 @@
 package org.techtown.chatting;
 
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatCheckBox;
-
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseException;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    CheckBox campus1;
-    CheckBox campus2;
-    CheckBox male1;
-    CheckBox male2;
-    Button startBtn;
-    Boolean userCampus = true;
-    Boolean userMale = true;
-    long key = 1;
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference key_reference = FirebaseDatabase.getInstance().getReference().child("key");
-    int already_added_to_waitingList = 0; //자신이 waiting list에 2번 이상 올라가는 걸 방지
-
-    UserOption userOption = null;
-    Boolean isMatched = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        campus1 = findViewById(R.id.campus1);
-        campus2 = findViewById(R.id.campus2);
-        male1 = findViewById(R.id.male1);
-        male2 = findViewById(R.id.male2);
-        startBtn = findViewById(R.id.start_btn);
-
-        startBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                if(!campus1.isChecked()&&!campus2.isChecked()){
-                    Toast.makeText(getApplicationContext(), "옵션을 선택해주세요", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(!male1.isChecked()&&!male2.isChecked()){
-                    Toast.makeText(getApplicationContext(), "옵션을 선택해주세요", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                reference.addListenerForSingleValueEvent(dataListener);
-                Log.d("asdasda","위에 있는 addListenerForSingleValueEven보다 여기가 먼저 실행 돼서" +
-                        "처음에 시작하기를 누르면 무조건 매칭 실패하는 일이 발생해서 뒤 부분을 onChildChanged와 ValueEventListener 끝으로 옮김");
-                /* 이 부분 삭제됨
-                if(isMatched){
-                    Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
-                    postFirebaseDatabase();
-                    return;
-                }
-                 */
-            }
-        });
-
-        reference.addChildEventListener(new ChildEventListener(){
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s){ //테이블이 추가될 때 실행
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot,String s){ //테이블 내에서 추가, 삭제, 수정 등이 일어날 때 실행
-                reference.addListenerForSingleValueEvent(dataListener);  // 처음에 매칭되지 않고 기다리는 중 다른 사람이 waiting list에 들어올 때 매칭여부 재확인
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot){
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot,String s){
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError){
-
-            }
-        });
+        try{
+            Thread.sleep(500);
+        } catch(InterruptedException e){
+            Log.d("",e.toString());
+        }
+        if(!restoreState().equals("")){ //로그인 된 아이디가 있으면
+            /*Intent intent = new Intent(getApplicationContext(),Friend_list.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);*/
+        } else{  //로그인 된 아이디가 없으면
+            Intent intent = new Intent(getApplicationContext(),Login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
     }
 
-    private void waitingListener(DataSnapshot dataSnapshot){
-
-    }
-
-    ValueEventListener dataListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            for(DataSnapshot dataSnapshot2 : dataSnapshot.child("key").getChildren()){
-                Log.d("asdasda",dataSnapshot2.getValue().toString());
-                key = (Long) dataSnapshot2.getValue();
-            }
-
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("waiting").getChildren()){
-                Log.d("asdasda", dataSnapshot1.getKey());
-                Log.d("asdasda", dataSnapshot1.toString());
-                try{
-                    Map<String, Object> message = (Map<String, Object>)dataSnapshot1.getValue();
-                    UserOption get = new UserOption((Boolean)message.get("campus1"),(Boolean)message.get("campus2"),(Boolean)message.get("male1"),
-                            (Boolean)message.get("male2"),(Boolean)message.get("userCampus"),(Boolean)message.get("userMale"));
-                    //UserOption get = dataSnapshot1.child("value").getValue(UserOption.class); 삭제됨
-                    if(userCampus){  //내가 인사캠인데
-                        if(!get.campus1){
-                            continue;  //상대방이 인사캠 체크 안 함
-                        }
-                    }
-                    else{  //내가 자과캠인데
-                        if(!get.campus2)    {
-                            continue;  //상대방이 자과캠 체크 안 함
-                        }
-                    }
-                    if(userMale){  //내가 남잔데
-                        if(!get.male1)   {
-                            continue;  //상대방이 남자 체크 안 함
-                        }
-                    }
-                    else{  //내가 여잔데
-                        if(!get.male2)  {
-                            continue;  //상대방이 여자 체크 안 함
-                        }
-                    }
-                    if(get.userMale){  //상대방 남자인데
-                        if(!male1.isChecked()) {
-                            continue;  //내가 남자에 체크 안 함
-                        }
-                    }
-                    else{  //상대방 여자인데
-                        if(!male2.isChecked()) {
-                            continue;  //내가 여자에 체크 안 함
-                        }
-                    }
-                    if(get.userCampus){  // 상대방 인사캠인데
-                        if(!campus1.isChecked())  {
-                            continue;  //내가 인사캠에 체크 안 함
-                        }
-                    }
-                    else{  // 상대방 자과캠인데
-                        if(!campus2.isChecked())   {
-                            continue;  //내가 자과캠에 체크 안 함
-                        }
-                    }
-                    isMatched = true;
-                    userOption = get;
-                    break;
-                } catch(DatabaseException e){
-                    dataSnapshot1.getKey();
-                    Log.d("asdasda", "데이터베이스 오류");
-                }
-                // campus1 == userCampus true --> 인사캠
-                // campus2 == userCampus false --> 자과캠
-                // male1 == userMale true --> 이성
-                // male2 == userMale false --> 동성
-            }
-            if(isMatched){
-                Toast.makeText(getApplicationContext(), "매칭 성공", Toast.LENGTH_SHORT).show();
-                Log.d("asdasda",Long.toString(key));
-                return;
-            }
-            else{
-                Toast.makeText(getApplicationContext(), "매칭 실패, 대기열에 올립니다.", Toast.LENGTH_SHORT).show();
-                Log.d("asdasda",Long.toString(key));
-                postFirebaseDatabase();
-                return;
-            }
+    public String restoreState(){  //로그인 된 아이디 복원
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        if((pref!=null)&&(pref.contains("id"))){
+            String id = pref.getString("id","");
+            return id;
         }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
-    };
-
-    public void postFirebaseDatabase(){
-        if(already_added_to_waitingList == 0){
-            Map<String, Object> childUpdates = new HashMap<>();
-            Map<String, Object> key_childUpdates = new HashMap<>();
-            Map<String, Object> postValues = null;
-            UserOption userOption = new UserOption(campus1.isChecked(), campus2.isChecked(), male1.isChecked(), male2.isChecked(), userCampus, userMale);
-            postValues = userOption.toMap();
-            key++;
-            childUpdates.put("waiting/"+Long.toString(key), postValues);
-            key_childUpdates.put("key",key);
-            reference.updateChildren(childUpdates);
-            key_reference.updateChildren(key_childUpdates);
-            already_added_to_waitingList = 1;
-        }
+        else return "";
     }
 }
