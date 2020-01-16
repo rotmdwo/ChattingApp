@@ -164,7 +164,7 @@ public class SignUpActivity extends AppCompatActivity {
                     //아이디가 중복됨
                     Toast.makeText(getApplicationContext(), "아이디가 중복됩니다. ", Toast.LENGTH_LONG).show();
                     isIdChecked = false;
-                    break;
+                    return;
                 }
             }
             if(inputId.equals("")) {
