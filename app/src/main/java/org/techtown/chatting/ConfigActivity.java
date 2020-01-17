@@ -35,7 +35,7 @@ public class ConfigActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
-                        intent = new Intent(getApplicationContext(),Login.class);
+                        intent = new Intent(getApplicationContext(),FriendList.class);
                         startActivity(intent);
                         finish();
                         break;
