@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } else{  //로그인 된 아이디가 없으면
             Intent intent = new Intent(getApplicationContext(),Login.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
     }
