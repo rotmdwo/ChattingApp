@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 public class FriendList extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    ImageView person, chatRoom, randomChat, setting;
     friendAdapter adapter = new friendAdapter();
     RecyclerView recyclerView;
     @Override
@@ -36,7 +39,43 @@ public class FriendList extends AppCompatActivity {
 
         reference.addListenerForSingleValueEvent(dataListener);
 
+        person = (ImageView)findViewById(R.id.person);
+        chatRoom = (ImageView)findViewById(R.id.chatRoom);
+        randomChat = (ImageView)findViewById(R.id.randomChat);
+        setting = (ImageView)findViewById(R.id.setting);
 
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent;
+                switch (view.getId()) {
+                    case R.id.person:
+                        intent = new Intent(getApplicationContext(),Login.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.chatRoom:
+                        //intent = new Intent(getApplicationContext(),Login.class);
+                        break;
+                    case R.id.randomChat:
+                        intent = new Intent(getApplicationContext(),RandomChattingWaitingRoom.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.setting:
+                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+
+            }
+        };
+
+        person.setOnClickListener(clickListener);
+        chatRoom.setOnClickListener(clickListener);
+        randomChat.setOnClickListener(clickListener);
+        setting.setOnClickListener(clickListener);
 
     }
 
