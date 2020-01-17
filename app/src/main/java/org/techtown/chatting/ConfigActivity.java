@@ -39,6 +39,9 @@ public class ConfigActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "로그아웃 되었어요.", Toast.LENGTH_SHORT).show();
                     startActivity(intent);
                     finish();
+                } else if(item.equals("프로필 관리")){
+                    Intent intent = new Intent(getApplicationContext(),ProfileManagement.class);
+                    startActivity(intent);
                 }
             }
         });
