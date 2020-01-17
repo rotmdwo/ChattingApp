@@ -26,6 +26,13 @@ public class StateMessageChange extends AppCompatActivity {
     String changedMessage;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     int userNum;
+    String email;
+    String name;
+    String password;
+    Boolean userCampus;
+    String userId;
+    Boolean userMale;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,12 @@ public class StateMessageChange extends AppCompatActivity {
                 Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                 if(restoreState().equals(message.get("userId"))){
                     userNum = Integer.parseInt(dataSnapshot1.getKey());
+                    email = (String) message.get("email");
+                    name = (String) message.get("name");
+                    password = (String) message.get("password");
+                    userCampus = (Boolean) message.get("userCampus");
+                    userId = (String) message.get("userId");
+                    userMale = (Boolean) message.get("userMale");
                 }
 
             }
@@ -60,6 +73,12 @@ public class StateMessageChange extends AppCompatActivity {
             Map<String, Object> childUpdates = new HashMap<>();
             Map<String, Object> postValues = new HashMap<>();
             postValues.put("statement_message", changedMessage);
+            postValues.put("email", email);
+            postValues.put("name", name);
+            postValues.put("password", password);
+            postValues.put("userCampus", userCampus);
+            postValues.put("userId", userId);
+            postValues.put("userMale", userMale);
             childUpdates.put("user/" + userNum, postValues);
             reference.updateChildren(childUpdates);
         }
