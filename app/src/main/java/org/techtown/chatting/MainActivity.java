@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
+        finish();
     }
 
     public String restoreState(){  //로그인 된 아이디 복원

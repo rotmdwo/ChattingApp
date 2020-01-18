@@ -8,10 +8,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -27,6 +30,9 @@ public class FriendList extends AppCompatActivity {
     ImageView person, chatRoom, randomChat, setting;
     friendAdapter adapter = new friendAdapter();
     RecyclerView recyclerView;
+    TextView textView_name, textView_statement_message; //유저의 이름과 상태메세지 텍스트뷰
+    String name, statement_message; //유저의 이름과 상태메세지 변수
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +42,8 @@ public class FriendList extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
 
+        textView_name=findViewById(R.id.textView);
+        textView_statement_message=findViewById(R.id.textView2);
 
         reference.addListenerForSingleValueEvent(dataListener);
 
@@ -50,9 +58,9 @@ public class FriendList extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
-                        intent = new Intent(getApplicationContext(),Login.class);
+                        /*intent = new Intent(getApplicationContext(),FriendList.class);
                         startActivity(intent);
-                        finish();
+                        finish();*/
                         break;
                     case R.id.chatRoom:
                         //intent = new Intent(getApplicationContext(),Login.class);
@@ -82,16 +90,25 @@ public class FriendList extends AppCompatActivity {
     ValueEventListener dataListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            for(DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()){
+                Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
+                if(restoreState().equals(message2.get("userId"))){
+                    name = (String) message2.get("name");
+                    try{
+                        statement_message = (String) message2.get("statement_message");
+                        textView_statement_message.setText(statement_message);
+                    }catch(SQLException e){
+                        Log.d("asd","에러");
+                    }
+                    textView_name.setText(name);
+
+                }
+            }
+
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("friend").getChildren()){
-                Log.d("asd",dataSnapshot1.getValue().toString());
-                Log.d("asd",dataSnapshot1.getKey());
                 if(dataSnapshot1.getKey().equals(restoreState())){
-                    Log.d("asd","1");
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    Log.d("asd","2");
-                    Log.d("asd",message.toString());
                     int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
-                    Log.d("asd","3");
 
                     for(int i=1;i<=num;i++){
                         adapter.addItem(new friend((String)message.get(Integer.toString(i)),"상태메세지"));

@@ -48,9 +48,9 @@ public class ConfigActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.setting:
-                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        /*intent = new Intent(getApplicationContext(),ConfigActivity.class);
                         startActivity(intent);
-                        finish();
+                        finish();*/
                         break;
                 }
 

@@ -67,7 +67,6 @@ public class StateMessageChange extends AppCompatActivity {
                     userId = (String) message.get("userId");
                     userMale = (Boolean) message.get("userMale");
                 }
-
             }
 
             Map<String, Object> childUpdates = new HashMap<>();
@@ -81,6 +80,7 @@ public class StateMessageChange extends AppCompatActivity {
             postValues.put("userMale", userMale);
             childUpdates.put("user/" + userNum, postValues);
             reference.updateChildren(childUpdates);
+            finish();
         }
 
         @Override
