@@ -1,19 +1,20 @@
 package org.techtown.chatting;
 
+import org.techtown.chatting.adapter.ChatRoomAdapter;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.SQLException;
-import android.media.Image;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,14 +22,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
+    ArrayList<String> list = new ArrayList<>();
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
+    private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("user");
+    //RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
+    RecyclerView recyclerView;
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
-    ChatRoomAdapter adapter = new ChatRoomAdapter(); //리사이클러뷰에 사용하는 어댑터
+    ChatRoomAdapter adapter; //리사이클러뷰에 사용하는 어댑터
     String chatRoomNumList; //채팅방 이름
 
     @Override
@@ -36,10 +43,11 @@ public class ChatListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
 
+        // 리사이클러뷰에 LinearLayoutManager 객체 지정.
+        recyclerView = findViewById(R.id.chatRoomList) ;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this)) ;
+
         addChatRoom = (ImageView)findViewById(R.id.addChatRoom);
-        chatRoomList = (RecyclerView)findViewById(R.id.chatRoomList);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
-        chatRoomList.setLayoutManager(layoutManager);
 
         reference.addListenerForSingleValueEvent(dataListener);
 
@@ -78,12 +86,37 @@ public class ChatListActivity extends AppCompatActivity {
             }
         };
 
+
+
+        // +버튼 눌렀을때 채팅방 만들기
+        View.OnClickListener clickListener2 = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //누구랑 채팅방을 만들건지 정하기
+                //톡방 이름을 정하기
+
+                //DB에 채팅방 업데이트
+                    //num_of_rooms 숫자 1늘리기
+                    //rooms밑에 테이블 만들기
+                    //만든 테이블의 num_of_messages를 0으로 한다.
+                    //만든 테이블의 name을 유저가 입력한 것으로 함
+                Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
+                
+            }
+        };
+
+
+        // 채팅방 누르면 startActivity
+
         person.setOnClickListener(clickListener);
         chatRoom.setOnClickListener(clickListener);
         randomChat.setOnClickListener(clickListener);
         setting.setOnClickListener(clickListener);
-    }
 
+        addChatRoom.setOnClickListener(clickListener2);
+
+
+    }
 
 
     //intent로 방번호랑 방 이름을 보낸다.
@@ -92,37 +125,32 @@ public class ChatListActivity extends AppCompatActivity {
     //일단 이 사람이 누구인지 알아야 하고 그 사람이 들어간 톡방 번호를 받아온다.
     //그 톡방의 name 값을 받아와서 textView로 출력한다.
 
-    ValueEventListener dataListener = new ValueEventListener() {
+    final ValueEventListener dataListener = new ValueEventListener() {
+        // 리사이클러뷰에 표시할 데이터 리스트 생성.
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            //user의 자식 중에서 getSharedPreference 메서드를 사용,
-            //사용자가 누구인지 받아온다.
             for (DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()) {
                 Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
-                //만약 사용자의 id를 찾으면,
+                //user의 자식 중에서 getSharedPreference 메서드를 사용, 사용자의 정보만 참조한다.
                 if (restoreState().equals(message2.get("userId"))) {
-                    //그 사람이 들어간 방 번호를 받아온다.
-                    Log.d("a", "message2는 " + message2.toString());
-                    for(DataSnapshot dataSnapshot3 : dataSnapshot2.child("room").getChildren()) {
-                        Map<String, Object> message3 = (Map<String, Object>) dataSnapshot3.getValue();
-                        Log.d("a", " " + message3.toString());
+                    for (DataSnapshot dataSnapshot3 : dataSnapshot2.child("room").getChildren()) {
+                        //Map<String, Object> message3 =  dataSnapshot3.getValue();
+                        list.add(String.format("방 번호: %s", dataSnapshot3.getValue().toString()));
+                        Log.d("a", dataSnapshot3.getValue().toString());
                     }
-
+                    // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
+                    adapter = new ChatRoomAdapter(list) ;
+                    recyclerView.setAdapter(adapter);
+                    adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View v, int position) {
+                            Toast.makeText(getApplicationContext(), (position+1) + "번째 채팅방을 눌렀어요.", Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
             }
-            /*
-            for (DataSnapshot dataSnapshot1 : dataSnapshot.child("friend").getChildren()) {
-                if (dataSnapshot1.getKey().equals(restoreState())) {
-                    Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
 
-                    for (int i = 1; i <= num; i++) {
-                        //adapter.addItem(new friend((String) message.get(Integer.toString(i)), "상태메세지"));
-                    }
-                }
-            }*/
 
-            //recyclerView.setAdapter(adapter);
         }
 
         @Override

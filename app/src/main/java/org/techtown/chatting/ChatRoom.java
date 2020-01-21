@@ -81,18 +81,18 @@ public class ChatRoom extends AppCompatActivity {
         reference.addListenerForSingleValueEvent(dataListener);
     }
 
-    ValueEventListener dataListener = new ValueEventListener() {
+    final ValueEventListener dataListener = new ValueEventListener() {
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()){
-                if(dataSnapshot1.getKey().equals(Integer.toString(room_no))){
+            for (DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()) {
+                if (dataSnapshot1.getKey().equals(Integer.toString(room_no))) {
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    textView.setText((String)message.get("name"));
+                    textView.setText((String) message.get("name"));
                     num_of_messages = Integer.parseInt(message.get("num_of_messages").toString());
-                    for(int i=1;i<=num_of_messages;i++){
+                    for (int i = 1; i <= num_of_messages; i++) {
                         Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(i));
-                        adapter.addItem(new message((String)message1.get("sender"),(String)message1.get("message")),getApplicationContext());
+                        adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
 
                     }
                     recyclerView.setAdapter(adapter);

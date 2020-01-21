@@ -12,17 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity android:name=".ChatRoom">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".StateMessageChange" />
         <activity android:name=".ProfileManagement" />
         <activity android:name=".ConfigActivity" />
         <activity android:name=".FriendList" >
 
+        </activity>
+        <activity android:name=".ChatListActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".RandomChattingWaitingRoom" />
