@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFFFF"
     android:orientation="vertical"
-    tools:context=".FriendList">
+    tools:context=".FriendListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,7 +54,7 @@
                     android:id="@+id/imageView"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:src="@drawable/ic_launcher_foreground" />
+                    app:srcCompat="@drawable/ic_launcher_foreground" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
