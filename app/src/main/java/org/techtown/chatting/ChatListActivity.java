@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,9 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
@@ -62,17 +59,17 @@ public class ChatListActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
-                        intent = new Intent(getApplicationContext(),FriendList.class);
+                        intent = new Intent(getApplicationContext(), FriendListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
                     case R.id.chatRoom:
                         /*intent = new Intent(getApplicationContext(),ChatListActivity.class);
                         startActivity(intent);
-                        finish();
-                        break;*/
+                        finish();*/
+                        break;
                     case R.id.randomChat:
-                        intent = new Intent(getApplicationContext(),RandomChattingWaitingRoom.class);
+                        intent = new Intent(getApplicationContext(), RandomChatActivity.class);
                         startActivity(intent);
                         finish();
                         break;

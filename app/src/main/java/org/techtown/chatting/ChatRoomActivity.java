@@ -23,7 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatRoom extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity {
     ImageButton imageButton,imageButton2;
     EditText editText;
     RecyclerView recyclerView;

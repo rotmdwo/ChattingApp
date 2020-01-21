@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("",e.toString());
         }
         if(!restoreState().equals("")){ //로그인 된 아이디가 있으면
-            Intent intent = new Intent(getApplicationContext(),FriendList.class);
+            Intent intent = new Intent(getApplicationContext(), FriendListActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else{  //로그인 된 아이디가 없으면
