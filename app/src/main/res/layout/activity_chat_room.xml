@@ -20,6 +20,7 @@
             android:layout_height="66.9dp"
             android:adjustViewBounds="true"
             android:background="#FF87CEEB"
+            android:padding="5dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/back" />
 
@@ -51,7 +52,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="50dp"
-            android:background="#FFFFFFFF" />
+            android:background="#FFFFFFFF"
+            android:overScrollMode="never">
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="1dp"
+            android:layout_marginBottom="51dp"
+            android:background="#CCD3D3D3"
+            android:maxLines="2"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="상대방이 보낸 메세지"
+            android:textColor="#CC000000"
+            android:textSize="25dp"
+            android:visibility="invisible" />
 
         <LinearLayout
             android:id="@+id/linearView"

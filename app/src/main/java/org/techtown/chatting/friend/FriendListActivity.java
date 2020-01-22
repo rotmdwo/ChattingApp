@@ -120,11 +120,10 @@ public class FriendListActivity extends AppCompatActivity {
                 }
             }
 
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Friend").getChildren()){
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("friend").getChildren()){
                 if(dataSnapshot1.getKey().equals(restoreState())){
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                     int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
-
                     for(int i=1;i<=num;i++){
                         adapter.addItem(new Friend((String)message.get(Integer.toString(i)),"상태메세지"));
                     }

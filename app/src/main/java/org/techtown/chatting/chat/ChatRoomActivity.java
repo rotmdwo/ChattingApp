@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -36,7 +37,10 @@ public class ChatRoomActivity extends AppCompatActivity {
     private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference reference3;
     int room_no,num_of_messages;
-    TextView textView;
+    TextView textView,textView2;
+    private Parcelable recyclerViewState;  //자동 스크롤 방지
+    Boolean sentByMe = false;
+    long scrollLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +48,23 @@ public class ChatRoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat_room);
 
         textView = findViewById(R.id.textView);
+        textView2 = findViewById(R.id.textView2);
 
         recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if(recyclerView.computeVerticalScrollOffset() + recyclerView.computeVerticalScrollExtent() == recyclerView.computeVerticalScrollRange()){
+                    textView2.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
 
         intent = getIntent();
         room_no = intent.getIntExtra("room_no",1);
@@ -68,17 +85,19 @@ public class ChatRoomActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String message = editText.getText().toString();
                 editText.setText("");
-                // 보내는 거 구현
-                Map<String, Object> childUpdates1 = new HashMap<>();
-                Map<String, Object> childUpdates2 = new HashMap<>();
-                Map<String, Object> postValues = new HashMap<>();
-                num_of_messages++;
-                childUpdates1.put("Room/rooms/"+room_no+"/num_of_messages",num_of_messages);
-                postValues.put("message",message);
-                postValues.put("sender",restoreState());
-                childUpdates2.put("Room/rooms/"+room_no+"/"+num_of_messages,postValues);
-                reference2.updateChildren(childUpdates1);
-                reference2.updateChildren(childUpdates2);
+                if(!message.equals("")){  // 보내는 거 구현
+                    Map<String, Object> childUpdates1 = new HashMap<>();
+                    Map<String, Object> childUpdates2 = new HashMap<>();
+                    Map<String, Object> postValues = new HashMap<>();
+                    num_of_messages++;
+                    childUpdates1.put("Room/rooms/"+room_no+"/num_of_messages",num_of_messages);
+                    postValues.put("message",message);
+                    postValues.put("sender",restoreState());
+                    childUpdates2.put("Room/rooms/"+room_no+"/"+num_of_messages,postValues);
+                    sentByMe = true;
+                    reference2.updateChildren(childUpdates1);
+                    reference2.updateChildren(childUpdates2);
+                }
             }
         });
         reference.addListenerForSingleValueEvent(dataListener);
@@ -87,11 +106,17 @@ public class ChatRoomActivity extends AppCompatActivity {
         reference3.addChildEventListener(new ChildEventListener(){
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s){
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot,String s){
-                reference.addListenerForSingleValueEvent(dataListener2);
+                if(sentByMe == true){  // 내가 메세지 보냄
+                    sentByMe = false;
+                    reference.addListenerForSingleValueEvent(dataListener2);
+                } else{  // 상대가 메세지 보냄
+                    reference.addListenerForSingleValueEvent(dataListener3);
+                }
             }
 
             @Override
@@ -111,7 +136,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         });
     }
 
-    final ValueEventListener dataListener = new ValueEventListener() {
+    final ValueEventListener dataListener = new ValueEventListener() {  //채팅창에 들어와 처음 메세지를 로딩할 때
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -125,6 +150,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
                     }
                     recyclerView.setAdapter(adapter);
+                    recyclerView.scrollToPosition(adapter.getItemCount() - 1);  //자동 스크롤
                 }
             }
 
@@ -136,21 +162,21 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     };
 
-    ValueEventListener dataListener2 = new ValueEventListener() {
+    ValueEventListener dataListener2 = new ValueEventListener() {  //내가 메세지를 보냈을 때
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()){
-                if(dataSnapshot1.getKey().equals(Integer.toString(room_no))){
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()) {
+                if (dataSnapshot1.getKey().equals(Integer.toString(room_no))) {
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    textView.setText((String)message.get("name"));
+                    textView.setText((String) message.get("name"));
                     num_of_messages = Integer.parseInt(message.get("num_of_messages").toString());
                     Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(num_of_messages));
-                    adapter.addItem(new message((String)message1.get("sender"),(String)message1.get("message")),getApplicationContext());
+                    adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
                     recyclerView.setAdapter(adapter);
+                    recyclerView.scrollToPosition(adapter.getItemCount() - 1);  //자동 스크롤
                 }
             }
-
         }
 
         @Override
@@ -159,6 +185,35 @@ public class ChatRoomActivity extends AppCompatActivity {
         }
     };
 
+    ValueEventListener dataListener3 = new ValueEventListener() {  //상대방이 메세지를 보냈을 때
+
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()) {
+                if (dataSnapshot1.getKey().equals(Integer.toString(room_no))) {
+                    Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
+                    textView.setText((String) message.get("name"));
+                    num_of_messages = Integer.parseInt(message.get("num_of_messages").toString());
+                    Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(num_of_messages));
+                    adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
+
+                    if(recyclerView.computeVerticalScrollOffset() + recyclerView.computeVerticalScrollExtent() != recyclerView.computeVerticalScrollRange()){
+                        textView2.setText((String) message1.get("sender") + " : " + (String) message1.get("message"));
+                        textView2.setVisibility(View.VISIBLE);  // 대화창 스크롤이 가장 밑에 있지 않을 때 상대가 메세지를 보내면 미리보기 창이 뜸
+                    }
+
+                    recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();  //자동 스크롤 방지
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);  //자동 스크롤 방지
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
 
     protected String restoreState(){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
