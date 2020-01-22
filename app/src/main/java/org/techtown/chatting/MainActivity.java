@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,18 +19,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try{
+        /*try{
             Thread.sleep(500);
         } catch(InterruptedException e){
             Log.d("",e.toString());
-        }
+        }*/
         if(!restoreState().equals("")){ //로그인 된 아이디가 있으면
             Intent intent = new Intent(getApplicationContext(), FriendListActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else{  //로그인 된 아이디가 없으면
             Intent intent = new Intent(getApplicationContext(), Login.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
         finish();

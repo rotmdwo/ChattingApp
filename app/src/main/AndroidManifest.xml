@@ -15,9 +15,8 @@
         <activity android:name=".StateMessageChange" />
         <activity android:name=".ProfileManagement" />
         <activity android:name=".ConfigActivity" />
-        <activity android:name=".friend.FriendListActivity" >
-
-        </activity>
+        <activity android:name=".friend.FriendListActivity" />
+        <activity android:name=".AddFriend.AddFriendActivity"/>
         <activity android:name=".chat.ChatListActivity">
 
         </activity>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFFFF"
+    android:orientation="vertical"
+    tools:context=".AddFriend.AddFriendActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="67dp"
+            android:layout_height="66.9dp"
+            android:adjustViewBounds="true"
+            android:background="#FF87CEEB"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/back_black" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFC2C5CC"
+            android:gravity="center"
+            android:paddingTop="20dp"
+            android:paddingRight="35dp"
+            android:paddingBottom="20dp"
+            android:text="아이디로 찾기"
+            android:textColor="#FF000000"
+            android:textSize="20dp" />
+
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="132dp"
+            android:layout_marginBottom="30dp"
+            android:src="@drawable/human"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="96dp"
+            android:layout_marginTop="91dp"
+            android:text="사용자를 찾을 수 없습니다."
+            android:textColor="#000000"
+            android:textSize="20dp"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="91dp"
+            android:text="아이디를 입력해주세요."
+            android:textColor="#000000"
+            android:textSize="20dp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="91dp"
+            android:text="자신을 친구로 추가할 수 없습니다."
+            android:textColor="#000000"
+            android:textSize="20dp"
+            android:visibility="invisible" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageView"
+            android:orientation="vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="이름"
+                android:textColor="#000000"
+                android:textSize="23dp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="이미 등록하셨습니다."
+                android:textColor="#000000"
+                android:textSize="23dp"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:backgroundTint="#FF000000"
+        android:ems="10"
+        android:hint="상대방의 ID를 입력하세요."
+        android:textColorHint="#FFC2C5CC"
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textSize="18dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="찾기"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:text="등록"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+
+</LinearLayout>

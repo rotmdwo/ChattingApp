@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFFFF"
     android:orientation="vertical"
-    tools:context=".friend.FriendListActivity">
+    tools:context=".FriendListActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,13 +29,22 @@
                 android:textStyle="bold" />
 
             <ImageButton
+                android:id="@+id/button2"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="60dp"
+                android:background="@drawable/human" />
+
+            <ImageButton
                 android:id="@+id/button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_gravity="right"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
                 android:background="@drawable/plus_black" />
         </RelativeLayout>

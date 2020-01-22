@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,9 +22,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.techtown.chatting.chat.ChatListActivity;
+import org.techtown.chatting.AddFriend.AddFriendActivity;
 import org.techtown.chatting.ConfigActivity;
 import org.techtown.chatting.R;
+import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
 
 import java.util.Map;
@@ -90,6 +92,14 @@ public class FriendListActivity extends AppCompatActivity {
         randomChat.setOnClickListener(clickListener);
         setting.setOnClickListener(clickListener);
 
+        ImageButton button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AddFriendActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     ValueEventListener dataListener = new ValueEventListener() {
