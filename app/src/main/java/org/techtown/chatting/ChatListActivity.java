@@ -26,8 +26,8 @@ import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
     ArrayList<String> list = new ArrayList<>();
+    ArrayList<String> chatNameList = new ArrayList<>();
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("user");
     //RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
     RecyclerView recyclerView;
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
@@ -89,7 +89,8 @@ public class ChatListActivity extends AppCompatActivity {
         View.OnClickListener clickListener2 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //누구랑 채팅방을 만들건지 정하기
+                //누구랑 채팅방을 만들건지 묻기
+
                 //톡방 이름을 정하기
 
                 //DB에 채팅방 업데이트
@@ -98,7 +99,7 @@ public class ChatListActivity extends AppCompatActivity {
                     //만든 테이블의 num_of_messages를 0으로 한다.
                     //만든 테이블의 name을 유저가 입력한 것으로 함
                 Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
-                
+
             }
         };
 
@@ -116,7 +117,7 @@ public class ChatListActivity extends AppCompatActivity {
     }
 
 
-    //intent로 방번호랑 방 이름을 보낸다.
+
 
     //현재 들어가있는 톡방을 가져온다.
     //일단 이 사람이 누구인지 알아야 하고 그 사람이 들어간 톡방 번호를 받아온다.
@@ -131,17 +132,39 @@ public class ChatListActivity extends AppCompatActivity {
                 //user의 자식 중에서 getSharedPreference 메서드를 사용, 사용자의 정보만 참조한다.
                 if (restoreState().equals(message2.get("userId"))) {
                     for (DataSnapshot dataSnapshot3 : dataSnapshot2.child("room").getChildren()) {
-                        //Map<String, Object> message3 =  dataSnapshot3.getValue();
-                        list.add(String.format("방 번호: %s", dataSnapshot3.getValue().toString()));
-                        Log.d("a", dataSnapshot3.getValue().toString());
+                        //ArrayList 변수인 list에 방 번호를 String으로 받아옴
+                        String tmp = dataSnapshot3.getValue().toString();
+                        //list에 더한다
+                        list.add(tmp);
+                        /*
+                        //ArrayList 변수인 ChatNameList에 채팅방 이름 받아옴
+                        for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Room").getChildren()) {
+                            //Log.d("abc", "이런 미친"+ dataSnapshot1.getKey().toString());
+                            //Log.d("abc", "이런 젠장" + dataSnapshot1.getValue().getClass().toString());
+                            if(dataSnapshot1.getKey().toString().equals("rooms")) {
+                                for(DataSnapshot dataSnapshot4 : dataSnapshot1.child("rooms").getChildren()) {
+                                    Log.d("abc", "이런 젠장");
+                                }
+                            }
+
+
+                        }*/
                     }
                     // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
-                    adapter = new ChatRoomAdapter(list) ;
+                    adapter = new ChatRoomAdapter(list);
                     recyclerView.setAdapter(adapter);
+
+                    //리사이클러뷰의 채팅방을 클릭했을 경우,
+                    //list.get(position) 을 통해서 해당 채팅방의 아이디를 반환받을 수 있음
                     adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
                         @Override
                         public void onItemClick(View v, int position) {
-                            Toast.makeText(getApplicationContext(), (position+1) + "번째 채팅방을 눌렀어요.", Toast.LENGTH_LONG).show();
+                            //intent로 ChatRoomActivity를 호출
+                            Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                            //방번호를 담음
+                            chatIntent.putExtra("room_no", list.get(position));
+                            //intent 전달하면서 액티비티 시작함
+                            startActivity(chatIntent);
                         }
                     });
                 }

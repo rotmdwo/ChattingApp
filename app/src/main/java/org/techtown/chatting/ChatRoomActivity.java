@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,9 +46,9 @@ public class ChatRoomActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
 
-        //intent = getIntent();
-        //room_no = intent.getIntExtra("room_no",1);
-        room_no = 1;
+        intent = getIntent();
+        room_no = intent.getIntExtra("room_no",1);
+        //Toast.makeText(getApplicationContext(), "넘겨받은 값은: " + room_no, Toast.LENGTH_SHORT).show();
 
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(new View.OnClickListener(){
@@ -93,7 +94,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                     for (int i = 1; i <= num_of_messages; i++) {
                         Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(i));
                         adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
-
                     }
                     recyclerView.setAdapter(adapter);
                 }
