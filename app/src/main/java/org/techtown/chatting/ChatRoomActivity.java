@@ -4,17 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +33,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     Intent intent;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Room");
     private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference reference3;
     int room_no,num_of_messages;
     TextView textView;
 
@@ -76,10 +78,36 @@ public class ChatRoomActivity extends AppCompatActivity {
                 childUpdates2.put("Room/rooms/"+room_no+"/"+num_of_messages,postValues);
                 reference2.updateChildren(childUpdates1);
                 reference2.updateChildren(childUpdates2);
-                reference.addListenerForSingleValueEvent(dataListener2);
             }
         });
         reference.addListenerForSingleValueEvent(dataListener);
+
+        reference3 = FirebaseDatabase.getInstance().getReference().child("Room").child("rooms").child(Integer.toString(room_no));
+        reference3.addChildEventListener(new ChildEventListener(){
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s){
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot,String s){
+                reference.addListenerForSingleValueEvent(dataListener2);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot){
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot,String s){
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError){
+
+            }
+        });
     }
 
     final ValueEventListener dataListener = new ValueEventListener() {
