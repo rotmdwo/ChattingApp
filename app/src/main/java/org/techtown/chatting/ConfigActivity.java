@@ -35,15 +35,17 @@ public class ConfigActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
-                        intent = new Intent(getApplicationContext(),FriendList.class);
+                        intent = new Intent(getApplicationContext(), FriendListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
                     case R.id.chatRoom:
-                        //intent = new Intent(getApplicationContext(),Login.class);
+                        intent = new Intent(getApplicationContext(),ChatListActivity.class);
+                        startActivity(intent);
+                        finish();
                         break;
                     case R.id.randomChat:
-                        intent = new Intent(getApplicationContext(),RandomChattingWaitingRoom.class);
+                        intent = new Intent(getApplicationContext(), RandomChatActivity.class);
                         startActivity(intent);
                         finish();
                         break;

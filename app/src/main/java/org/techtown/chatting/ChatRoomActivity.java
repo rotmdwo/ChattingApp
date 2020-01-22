@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatRoom extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity {
     ImageButton imageButton,imageButton2;
     EditText editText;
     RecyclerView recyclerView;
@@ -45,9 +46,9 @@ public class ChatRoom extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
 
-        //intent = getIntent();
-        //room_no = intent.getIntExtra("room_no",1);
-        room_no = 1;
+        intent = getIntent();
+        room_no = intent.getIntExtra("room_no",1);
+        //Toast.makeText(getApplicationContext(), "넘겨받은 값은: " + room_no, Toast.LENGTH_SHORT).show();
 
         imageButton = findViewById(R.id.imageButton);
         imageButton.setOnClickListener(new View.OnClickListener(){
@@ -81,19 +82,18 @@ public class ChatRoom extends AppCompatActivity {
         reference.addListenerForSingleValueEvent(dataListener);
     }
 
-    ValueEventListener dataListener = new ValueEventListener() {
+    final ValueEventListener dataListener = new ValueEventListener() {
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()){
-                if(dataSnapshot1.getKey().equals(Integer.toString(room_no))){
+            for (DataSnapshot dataSnapshot1 : dataSnapshot.child("rooms").getChildren()) {
+                if (dataSnapshot1.getKey().equals(Integer.toString(room_no))) {
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    textView.setText((String)message.get("name"));
+                    textView.setText((String) message.get("name"));
                     num_of_messages = Integer.parseInt(message.get("num_of_messages").toString());
-                    for(int i=1;i<=num_of_messages;i++){
+                    for (int i = 1; i <= num_of_messages; i++) {
                         Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(i));
-                        adapter.addItem(new message((String)message1.get("sender"),(String)message1.get("message")),getApplicationContext());
-
+                        adapter.addItem(new message((String) message1.get("sender"), (String) message1.get("message")), getApplicationContext());
                     }
                     recyclerView.setAdapter(adapter);
                 }

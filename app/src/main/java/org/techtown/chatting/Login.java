@@ -75,7 +75,7 @@ public class Login extends AppCompatActivity {
             }
             if(isLoginChecked){
                 saveState(id);  //로그인 성공, 로그인 된 아이디 저장
-                Intent intent = new Intent(getApplicationContext(),FriendList.class);
+                Intent intent = new Intent(getApplicationContext(), FriendListActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             } else{

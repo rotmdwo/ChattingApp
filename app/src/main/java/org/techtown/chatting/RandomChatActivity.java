@@ -3,11 +3,13 @@ package org.techtown.chatting;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
@@ -21,7 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RandomChattingWaitingRoom extends AppCompatActivity {
+public class RandomChatActivity extends AppCompatActivity {
     CheckBox campus1;
     CheckBox campus2;
     CheckBox male1;
@@ -37,16 +39,57 @@ public class RandomChattingWaitingRoom extends AppCompatActivity {
     UserOption userOption = null;
     Boolean isMatched = false;
 
+    ImageView person, chatRoom, randomChat, setting; //하단바 관련 변수
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_random_chatting_waiting_room);
+        setContentView(R.layout.activity_random_chat);
 
         campus1 = findViewById(R.id.campus1);
         campus2 = findViewById(R.id.campus2);
         male1 = findViewById(R.id.male1);
         male2 = findViewById(R.id.male2);
         startBtn = findViewById(R.id.start_btn);
+
+        //하단바 변수 대입 및 클릭 리스너 설정
+        person = (ImageView)findViewById(R.id.person);
+        chatRoom = (ImageView)findViewById(R.id.chatRoom);
+        randomChat = (ImageView)findViewById(R.id.randomChat);
+        setting = (ImageView)findViewById(R.id.setting);
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent;
+                switch (view.getId()) {
+                    case R.id.person:
+                        intent = new Intent(getApplicationContext(),FriendListActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.chatRoom:
+                        intent = new Intent(getApplicationContext(),ChatListActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.randomChat:
+                        /*intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                        startActivity(intent);
+                        finish();*/
+                        break;
+                    case R.id.setting:
+                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+
+            }
+        };
+        person.setOnClickListener(clickListener);
+        chatRoom.setOnClickListener(clickListener);
+        randomChat.setOnClickListener(clickListener);
+        setting.setOnClickListener(clickListener);
 
         startBtn.setOnClickListener(new View.OnClickListener(){
             @Override
