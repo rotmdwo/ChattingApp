@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.chat;
 
 public class ChattingRoom {
     String roomName;

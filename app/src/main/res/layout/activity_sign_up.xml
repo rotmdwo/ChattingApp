@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="비밀번호"
-        android:inputType="textPersonName" />
+        android:inputType="textPassword" />
 
     <EditText
         android:id="@+id/userPw2"
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="비밀번호 확인"
-        android:inputType="textPersonName" />
+        android:inputType="textPassword" />
 
     <EditText
         android:id="@+id/userName"

@@ -9,6 +9,9 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.login.Login;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -27,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY|Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else{  //로그인 된 아이디가 없으면
-            Intent intent = new Intent(getApplicationContext(),Login.class);
+            Intent intent = new Intent(getApplicationContext(), Login.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }

@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.friend;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +8,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.techtown.chatting.R;
+
 import java.util.ArrayList;
 
-public class friendAdapter extends RecyclerView.Adapter<friendAdapter.ViewHolder>{
-    ArrayList<friend> items = new ArrayList<friend>();
+public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder>{
+    ArrayList<Friend> items = new ArrayList<Friend>();
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -23,7 +25,7 @@ public class friendAdapter extends RecyclerView.Adapter<friendAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        friend item = items.get(i);
+        Friend item = items.get(i);
         viewHolder.setItem(item);
     }
 
@@ -42,25 +44,25 @@ public class friendAdapter extends RecyclerView.Adapter<friendAdapter.ViewHolder
             textView2 = itemView.findViewById(R.id.textView2);
         }
 
-        public void setItem(friend book){
+        public void setItem(Friend book){
             textView.setText(book.getName());
             textView2.setText(book.getState_message());
         }
     }
 
-    public void addItem(friend item){
+    public void addItem(Friend item){
         items.add(item);
     }
 
-    public void setItems(ArrayList<friend> items){
+    public void setItems(ArrayList<Friend> items){
         this.items = items;
     }
 
-    public friend getItem(int position){
+    public Friend getItem(int position){
         return items.get(position);
     }
 
-    public friend setItem(int position, friend item){
+    public Friend setItem(int position, Friend item){
         return items.set(position,item);
     }
 }

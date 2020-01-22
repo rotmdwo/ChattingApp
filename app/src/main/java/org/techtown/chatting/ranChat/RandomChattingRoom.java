@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.ranChat;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +15,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.techtown.chatting.R;
 
 import java.util.HashMap;
 import java.util.Iterator;

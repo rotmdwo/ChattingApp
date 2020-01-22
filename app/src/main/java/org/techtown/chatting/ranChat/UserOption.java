@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.ranChat;
 
 import android.util.Log;
 

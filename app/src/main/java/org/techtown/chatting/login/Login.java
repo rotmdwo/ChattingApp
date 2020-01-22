@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.login;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.R;
+
 import java.util.Map;
 
 public class Login extends AppCompatActivity {
@@ -37,7 +40,7 @@ public class Login extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(getApplicationContext(),SignUpActivity.class);
+                Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }

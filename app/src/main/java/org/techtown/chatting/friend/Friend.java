@@ -1,10 +1,10 @@
-package org.techtown.chatting;
+package org.techtown.chatting.friend;
 
-public class friend {
+public class Friend {
     String name;
     String state_message;
 
-    public friend(String name, String state_message) {
+    public Friend(String name, String state_message) {
         this.name = name;
         this.state_message = state_message;
     }

@@ -13,6 +13,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.techtown.chatting.chat.ChatListActivity;
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.login.Login;
+import org.techtown.chatting.ranChat.RandomChatActivity;
+
 public class ConfigActivity extends AppCompatActivity {
     static final String[] LIST_MENU = {"공지사항", "프로필 관리", "계정 관리", "알림 설정", "친구목록 관리", "문의하기", "로그아웃"} ;
     ImageView person, chatRoom, randomChat, setting;
@@ -40,7 +45,7 @@ public class ConfigActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.chatRoom:
-                        intent = new Intent(getApplicationContext(),ChatListActivity.class);
+                        intent = new Intent(getApplicationContext(), ChatListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
@@ -75,7 +80,7 @@ public class ConfigActivity extends AppCompatActivity {
                 String item = (String)adapterView.getItemAtPosition(i);
 
                 if(item.equals("로그아웃")) {
-                    Intent intent = new Intent(getApplicationContext(),Login.class);
+                    Intent intent = new Intent(getApplicationContext(), Login.class);
                     clearState();
                     //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     Toast.makeText(getApplicationContext(), "로그아웃 되었어요.", Toast.LENGTH_SHORT).show();

@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.ranChat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +19,11 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.techtown.chatting.chat.ChatListActivity;
+import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,12 +68,12 @@ public class RandomChatActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
-                        intent = new Intent(getApplicationContext(),FriendListActivity.class);
+                        intent = new Intent(getApplicationContext(), FriendListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
                     case R.id.chatRoom:
-                        intent = new Intent(getApplicationContext(),ChatListActivity.class);
+                        intent = new Intent(getApplicationContext(), ChatListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
@@ -78,7 +83,7 @@ public class RandomChatActivity extends AppCompatActivity {
                         finish();*/
                         break;
                     case R.id.setting:
-                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        intent = new Intent(getApplicationContext(), ConfigActivity.class);
                         startActivity(intent);
                         finish();
                         break;

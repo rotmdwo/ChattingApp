@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.friend;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,12 +21,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.techtown.chatting.chat.ChatListActivity;
+import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.R;
+import org.techtown.chatting.ranChat.RandomChatActivity;
+
 import java.util.Map;
 
 public class FriendListActivity extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     ImageView person, chatRoom, randomChat, setting;
-    friendAdapter adapter = new friendAdapter();
+    FriendAdapter adapter = new FriendAdapter();
     RecyclerView recyclerView;
     TextView textView_name, textView_statement_message; //유저의 이름과 상태메세지 텍스트뷰
     String name, statement_message; //유저의 이름과 상태메세지 변수
@@ -61,7 +66,7 @@ public class FriendListActivity extends AppCompatActivity {
                         finish();*/
                         break;
                     case R.id.chatRoom:
-                        intent = new Intent(getApplicationContext(),ChatListActivity.class);
+                        intent = new Intent(getApplicationContext(), ChatListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
@@ -71,7 +76,7 @@ public class FriendListActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.setting:
-                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        intent = new Intent(getApplicationContext(), ConfigActivity.class);
                         startActivity(intent);
                         finish();
                         break;
@@ -105,13 +110,13 @@ public class FriendListActivity extends AppCompatActivity {
                 }
             }
 
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("friend").getChildren()){
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Friend").getChildren()){
                 if(dataSnapshot1.getKey().equals(restoreState())){
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                     int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
 
                     for(int i=1;i<=num;i++){
-                        adapter.addItem(new friend((String)message.get(Integer.toString(i)),"상태메세지"));
+                        adapter.addItem(new Friend((String)message.get(Integer.toString(i)),"상태메세지"));
                     }
                 }
             }

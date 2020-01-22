@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.chat;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.techtown.chatting.R;
 
 import java.util.ArrayList;
 

@@ -1,10 +1,9 @@
-package org.techtown.chatting;
+package org.techtown.chatting.chat;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -21,6 +20,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.techtown.chatting.R;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,11 +1,15 @@
-package org.techtown.chatting;
+package org.techtown.chatting.chat;
 
+import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.ranChat.RandomChatActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -22,7 +26,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
@@ -75,7 +78,7 @@ public class ChatListActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.setting:
-                        intent = new Intent(getApplicationContext(),ConfigActivity.class);
+                        intent = new Intent(getApplicationContext(), ConfigActivity.class);
                         startActivity(intent);
                         finish();
                         break;
