@@ -22,13 +22,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
     ArrayList<String> list = new ArrayList<>();
     ArrayList<String> chatNameList = new ArrayList<>();
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    //RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
+    RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
     RecyclerView recyclerView;
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
@@ -127,6 +128,8 @@ public class ChatListActivity extends AppCompatActivity {
         // 리사이클러뷰에 표시할 데이터 리스트 생성.
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
             for (DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()) {
                 Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
                 //user의 자식 중에서 getSharedPreference 메서드를 사용, 사용자의 정보만 참조한다.
@@ -136,22 +139,29 @@ public class ChatListActivity extends AppCompatActivity {
                         String tmp = dataSnapshot3.getValue().toString();
                         //list에 더한다
                         list.add(tmp);
-                        /*
-                        //ArrayList 변수인 ChatNameList에 채팅방 이름 받아옴
+
                         for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Room").getChildren()) {
-                            //Log.d("abc", "이런 미친"+ dataSnapshot1.getKey().toString());
-                            //Log.d("abc", "이런 젠장" + dataSnapshot1.getValue().getClass().toString());
-                            if(dataSnapshot1.getKey().toString().equals("rooms")) {
-                                for(DataSnapshot dataSnapshot4 : dataSnapshot1.child("rooms").getChildren()) {
-                                    Log.d("abc", "이런 젠장");
+                            if(dataSnapshot1.getKey().equals("rooms")) {
+                                for(DataSnapshot dataSnapshot4 : dataSnapshot1.getChildren()) {
+
+                                    if(dataSnapshot4.getKey().toString().equals(tmp)) {
+                                        for(DataSnapshot dataSnapshot5 : dataSnapshot4.getChildren()) {
+                                            if(dataSnapshot5.getKey().equals("name")) {
+                                                chatNameList.add(dataSnapshot5.getValue().toString());
+                                            }
+
+                                        }
+
+                                    }
                                 }
+                                //Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
+                                //Log.d("abcd", message.toString());
+
                             }
-
-
-                        }*/
+                        }
                     }
                     // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
-                    adapter = new ChatRoomAdapter(list);
+                    adapter = new ChatRoomAdapter(chatNameList);
                     recyclerView.setAdapter(adapter);
 
                     //리사이클러뷰의 채팅방을 클릭했을 경우,
