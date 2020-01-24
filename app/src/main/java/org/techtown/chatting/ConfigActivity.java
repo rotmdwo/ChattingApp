@@ -89,6 +89,15 @@ public class ConfigActivity extends AppCompatActivity {
                 } else if(item.equals("프로필 관리")){
                     Intent intent = new Intent(getApplicationContext(),ProfileManagement.class);
                     startActivity(intent);
+                } else if(item.equals("문의하기")) {
+                    Intent email = new Intent(Intent.ACTION_SEND);
+                    email.setType("plain/text");
+                    // email setting 배열로 해놔서 복수 발송 가능
+                    String[] address = {"bestowing02@gmail.com"};
+                    email.putExtra(Intent.EXTRA_EMAIL, address);
+                    email.putExtra(Intent.EXTRA_SUBJECT,"문의하기");
+                    email.putExtra(Intent.EXTRA_TEXT,"문의 내용을 적어주세요.\n");
+                    startActivity(email);
                 }
             }
         });
