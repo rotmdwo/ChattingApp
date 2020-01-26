@@ -11,18 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.techtown.chatting.R;
-import org.techtown.chatting.adapter.ChatRoomAdapter;
 
 import java.util.ArrayList;
 
-public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder>{
+public class FriendAdapterForAddChatRoom extends RecyclerView.Adapter<FriendAdapterForAddChatRoom.ViewHolder> {
     ArrayList<Friend> items = new ArrayList<Friend>();
+    private FriendAdapterForAddChatRoom.OnItemClickListener mListener = null ;
+    private SparseBooleanArray mSelectedItems = new SparseBooleanArray(0);
 
     public interface OnItemClickListener {
         void onItemClick(View v, int position) ;
     }
-
-    private OnItemClickListener mListener = null ;
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.mListener = listener ;
@@ -30,17 +29,23 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        View itemView = inflater.inflate(R.layout.friend_item,viewGroup,false);
+    public FriendAdapterForAddChatRoom.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View itemView = inflater.inflate(R.layout.friend_item,parent,false);
 
-        return new ViewHolder(itemView);
+        return new FriendAdapterForAddChatRoom.ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        Friend item = items.get(i);
-        viewHolder.setItem(item);
+    public void onBindViewHolder(@NonNull FriendAdapterForAddChatRoom.ViewHolder holder, int position) {
+        Friend item = items.get(position);
+        holder.setItem(item);
+
+        if ( mSelectedItems.get(position, false) ){
+            holder.itemView.setBackgroundColor(Color.GREEN);
+        } else {
+            holder.itemView.setBackgroundColor(Color.WHITE);
+        }
     }
 
     @Override
@@ -57,9 +62,20 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    //view.setBackgroundColor(Color.GRAY);
                     int pos = getAdapterPosition() ;
+
+                    if ( mSelectedItems.get(pos, false) ){
+                        mSelectedItems.put(pos, false);
+                        view.setBackgroundColor(Color.WHITE);
+                    } else {
+                        mSelectedItems.put(pos, true);
+                        view.setBackgroundColor(Color.GREEN);
+                    }
+
+
                     if (pos != RecyclerView.NO_POSITION) {
+
 
                         if (mListener != null) {
                             mListener.onItemClick(view, pos) ;
@@ -78,22 +94,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         }
     }
 
-    public void addItem(Friend item){
-        items.add(item);
-    }
-
     public void setItems(ArrayList<Friend> items){
         this.items = items;
     }
-
-    public Friend getItem(int position){
-        return items.get(position);
-    }
-
-    public Friend setItem(int position, Friend item){
-        return items.set(position,item);
-    }
-
-
-
 }

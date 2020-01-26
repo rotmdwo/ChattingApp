@@ -1,20 +1,18 @@
 package org.techtown.chatting.chat.addChatRoom;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,10 +21,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.R;
-import org.techtown.chatting.adapter.ChatRoomAdapter;
-import org.techtown.chatting.chat.ChatRoomActivity;
+import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.friend.Friend;
-import org.techtown.chatting.friend.FriendAdapter;
+import org.techtown.chatting.friend.FriendAdapterForAddChatRoom;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,10 +31,10 @@ import java.util.Map;
 public class AddChatActivity extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     ArrayList<Friend> list = new ArrayList<>();
+    ArrayList<Friend> selectedList = new ArrayList<>();
     RecyclerView recyclerView;
     Button creatBtn, cancleBtn;
-    FriendAdapter adapter = new FriendAdapter();
-
+    FriendAdapterForAddChatRoom adapter = new FriendAdapterForAddChatRoom();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +52,22 @@ public class AddChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(view.getId() == R.id.button3) {
-                    Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
+                    if(selectedList.size() == 0) {
+                        Toast.makeText(getApplicationContext(), "최소한 한명을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Intent intent = new Intent();
+                    Bundle bundle = new Bundle();
+                    int i = 0;
+                    for(Friend f : selectedList) {
+                        bundle.putString("" + i, f.getName());
+                        i++;
+                    }
+                    bundle.putInt("memberNum", selectedList.size());
+                    intent.putExtras(bundle);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 } else if(view.getId() == R.id.button4) {
                     Toast.makeText(getApplicationContext(), "채팅방 생성을 취소해요.", Toast.LENGTH_LONG).show();
                     finish();
@@ -82,17 +94,33 @@ public class AddChatActivity extends AppCompatActivity {
                     }
                 }
             }
-            adapter = new FriendAdapter();
+            adapter = new FriendAdapterForAddChatRoom();
             adapter.setItems(list);
 
             recyclerView.setAdapter(adapter);
 
-            adapter.setOnItemClickListener(new FriendAdapter.OnItemClickListener() {
+            adapter.setOnItemClickListener(new FriendAdapterForAddChatRoom.OnItemClickListener() {
                 @Override
                 public void onItemClick(View v, int position) {
-                    Toast.makeText(getApplicationContext(), position + "번째 친구를 눌렀어요", Toast.LENGTH_SHORT).show();
-                    Log.d("asdfg", list.get(position).getName());
-                    //list.get(position)
+                    //클릭된 객체가 selectedList에 있는지 확인
+                    //있으면 없애기
+                    //없으면 추가하기
+
+                    Friend selected = list.get(position);
+                    boolean isAdd = true;
+                    for(Friend f : selectedList) {
+                        if(f.equals(selected)) {
+                            isAdd = false;
+                        }
+                    }
+
+                    if(isAdd) {
+                        selectedList.add(selected);
+                        //Toast.makeText(getApplicationContext(), selected.getName() + "를 추가 헀어요", Toast.LENGTH_SHORT).show();
+                    } else {
+                        selectedList.remove(selected);
+                        //Toast.makeText(getApplicationContext(), selected.getName() + "를 삭제했어요", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

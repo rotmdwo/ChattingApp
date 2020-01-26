@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +25,7 @@ import org.techtown.chatting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
+import org.techtown.chatting.friend.Friend;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
 
@@ -38,6 +42,7 @@ public class ChatListActivity extends AppCompatActivity {
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
     ChatRoomAdapter adapter; //리사이클러뷰에 사용하는 어댑터
     String chatRoomNumList; //채팅방 이름
+    public static final int REQUEST_CODE = 001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +109,7 @@ public class ChatListActivity extends AppCompatActivity {
                     //만든 테이블의 name을 유저가 입력한 것으로 함
 
                 Intent intent = new Intent(getApplicationContext(), AddChatActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         };
 
@@ -121,7 +126,26 @@ public class ChatListActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            //Intent intentFromAdd = getIntent();
+            Bundle bundle = data.getExtras();
+            int member = bundle.getInt("memberNum");
 
+            for(int i=0; i<member; i++) {
+                Log.d("asdfg", bundle.getString("" + i));
+            }
+
+            //몇명인지
+            //bundle.getInt("memberNum");
+
+            //일단 채팅방 이름은 android로 하자
+            //bundle.getString("title");
+
+        }
+    }
 
 
     //현재 들어가있는 톡방을 가져온다.
