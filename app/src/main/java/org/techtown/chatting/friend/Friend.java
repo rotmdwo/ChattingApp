@@ -24,4 +24,5 @@ public class Friend {
     public void setState_message(String state_message) {
         this.state_message = state_message;
     }
+
 }

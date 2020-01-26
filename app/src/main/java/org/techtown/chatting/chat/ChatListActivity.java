@@ -1,18 +1,11 @@
 package org.techtown.chatting.chat;
 
-import org.techtown.chatting.ConfigActivity;
-import org.techtown.chatting.R;
-import org.techtown.chatting.adapter.ChatRoomAdapter;
-import org.techtown.chatting.friend.FriendListActivity;
-import org.techtown.chatting.ranChat.RandomChatActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +17,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.R;
+import org.techtown.chatting.adapter.ChatRoomAdapter;
+import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.ranChat.RandomChatActivity;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -102,8 +102,9 @@ public class ChatListActivity extends AppCompatActivity {
                     //rooms밑에 테이블 만들기
                     //만든 테이블의 num_of_messages를 0으로 한다.
                     //만든 테이블의 name을 유저가 입력한 것으로 함
-                Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
 
+                Intent intent = new Intent(getApplicationContext(), AddChatActivity.class);
+                startActivity(intent);
             }
         };
 
@@ -152,14 +153,11 @@ public class ChatListActivity extends AppCompatActivity {
                                             if(dataSnapshot5.getKey().equals("name")) {
                                                 chatNameList.add(dataSnapshot5.getValue().toString());
                                             }
-
                                         }
-
                                     }
                                 }
                                 //Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                                 //Log.d("abcd", message.toString());
-
                             }
                         }
                     }

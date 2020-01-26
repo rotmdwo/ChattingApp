@@ -11,15 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".chat.ChatRoomActivity"></activity>
+        <activity android:name=".chat.addChatRoom.AddChatActivity"></activity>
+        <activity android:name=".chat.ChatRoomActivity" />
         <activity android:name=".StateMessageChange" />
         <activity android:name=".ProfileManagement" />
         <activity android:name=".ConfigActivity" />
         <activity android:name=".friend.FriendListActivity" />
-        <activity android:name=".AddFriend.AddFriendActivity"/>
-        <activity android:name=".chat.ChatListActivity">
-
-        </activity>
+        <activity android:name=".AddFriend.AddFriendActivity" />
+        <activity android:name=".chat.ChatListActivity"></activity>
         <activity android:name=".login.SignUpActivity" />
         <activity android:name=".ranChat.RandomChatActivity" />
         <activity android:name=".login.Login" />
