@@ -33,23 +33,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatListActivity extends AppCompatActivity {
-    ArrayList<String> list = new ArrayList<>();
-    ArrayList<String> chatNameList = new ArrayList<>();
     ArrayList<String> addRoomUserList = new ArrayList<>(); //새로 추가한 방의 멤버들 ID
-    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Room");
-    private DatabaseReference reference3 = FirebaseDatabase.getInstance().getReference().child("user");
-    private DatabaseReference reference4;
-    RecyclerView chatRoomList; //채팅방 목록을 표시하는 리사이클러뷰
-    RecyclerView recyclerView;
-    ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
-    ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
+
+    //데이터베이스 관련 변수
+    private DatabaseReference reference = FirebaseDatabase.getInstance().getReference(); //초기 채팅방 세팅 (onCreate)
+    private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("Room"); //채팅방 생성 Room 테이블
+    private DatabaseReference reference3 = FirebaseDatabase.getInstance().getReference().child("user"); //채팅방 생성 user 테이블
+    private DatabaseReference reference4; //채팅방 변화 감지 세팅 (onChildChanged)
+
+    //액티비티간 정보 전달 상수 (startActivityForResult)
+    public static final int REQUEST_CODE = 001;
+
+    //채팅방 리사이클러뷰 관련 변수
+    RecyclerView recyclerView; //채팅방 목록을 표시하는 리사이클러뷰
     ChatRoomAdapter adapter = new ChatRoomAdapter(); //리사이클러뷰에 사용하는 어댑터
-    String chatRoomNumList; //채팅방 이름
+
+    //하단바 관련 변수
+    ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
+
+    //액티비티 관련 변수
+    ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
+
+    //얘넨뭐지
     int roomNum, member;
     String roomName;
-    public static final int REQUEST_CODE = 001;
-    int myNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,10 +169,10 @@ public class ChatListActivity extends AppCompatActivity {
             for(int i=0; i<member; i++) {
                 addRoomUserList.add(bundle.getString("" + i));
             }
-            //본인 id도 넣음
-            addRoomUserList.add(restoreState("id"));
 
-            //채팅방 이름을 받아옴 but,
+            addRoomUserList.add(restoreState("id")); //본인 id도 넣음
+
+            //유저가 입력한 채팅방 이름을 받아옴 but,
             //일단 채팅방 이름은 android로 하자
             //roomName = bundle.getString("title");
             roomName = "android";
@@ -185,9 +192,6 @@ public class ChatListActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             //사용자의 room 테이블에 접근함
             final Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
-            //현재는 방 번호만 받아와서 String이지만, 나중에 ChattingRoom 클래스를 adapter에 넣도록 변경해야함 (사진 구현할때 등등)
-            //ChattingRoom tmp = new ChattingRoom();
-            String tmp = "";
 
             //for문을 돌면서 현재 사용자가 들어간 채팅방을 탐색함
             for ( String key : message.keySet() ) {
@@ -195,12 +199,11 @@ public class ChatListActivity extends AppCompatActivity {
                 if(key.equals("size")) {
                     continue;
                 } else {
-                    //방 번호를 tmp에 넣음
-                    tmp = message.get(key).toString();
-                    //adapter에 아이템 추가
-                    adapter.addItem(tmp);
+                    adapter.addItem(new ChattingRoom("android", message.get(key).toString())); //adapter에 아이템 추가
                 }
             }
+
+
 
             // 리사이클러뷰에 adapter 지정
             recyclerView.setAdapter(adapter);
@@ -306,7 +309,6 @@ public class ChatListActivity extends AppCompatActivity {
             final Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
             //현재는 방 번호만 받아와서 String이지만, 나중에 ChattingRoom 클래스를 adapter에 넣도록 변경해야함 (사진 구현할때 등등)
             //ChattingRoom tmp = new ChattingRoom();
-            String tmp = "";
             String size = "";
 
             //for문을 돌면서 현재 사용자가 들어간 채팅방을 탐색함
@@ -320,12 +322,10 @@ public class ChatListActivity extends AppCompatActivity {
 
             for ( String key : message.keySet() ) {
                 if(key.equals(size)) {
-                    tmp = message.get(key).toString();
+                    adapter.addItem(new ChattingRoom("android", message.get(key).toString())); //adapter에 아이템 추가
                     break;
                 }
             }
-
-            adapter.addItem(tmp);
             // 리사이클러뷰에 adapter 지정
             recyclerView.setAdapter(adapter);
 
