@@ -19,6 +19,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.R;
+import org.techtown.chatting.friend.Friend;
+import org.techtown.chatting.friend.FriendListActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -223,7 +225,9 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
                 reference.updateChildren(childUpdates2);
             }
 
-
+            // 친구 맺은 후 친구목록 바로 업데이트
+            ((FriendListActivity)FriendListActivity.mContext).adapter.addItem(new Friend(acceptRequester,"상태메세지"));
+            ((FriendListActivity)FriendListActivity.mContext).recyclerView.setAdapter(((FriendListActivity)FriendListActivity.mContext).adapter);
         }
 
         @Override

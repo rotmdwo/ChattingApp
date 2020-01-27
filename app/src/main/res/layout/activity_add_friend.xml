@@ -115,9 +115,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="이미 등록하셨습니다."
+                android:text="이미 친구요청을 보냈거나 상대방이 요청한 상태입니다."
                 android:textColor="#000000"
-                android:textSize="23dp"
+                android:textSize="18dp"
                 android:visibility="invisible" />
 
         </LinearLayout>

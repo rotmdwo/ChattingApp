@@ -1,6 +1,7 @@
 package org.techtown.chatting.friend;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
@@ -35,17 +36,19 @@ public class FriendListActivity extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("FriendRequest");
     ImageView person, chatRoom, randomChat, setting;
-    FriendAdapter adapter = new FriendAdapter();
-    RecyclerView recyclerView;
+    public FriendAdapter adapter = new FriendAdapter();
+    public RecyclerView recyclerView;
     TextView textView_name, textView_statement_message; //유저의 이름과 상태메세지 텍스트뷰
     String name, statement_message; //유저의 이름과 상태메세지 변수
     Boolean gotFriendRequest = false;
     ImageButton button2;
+    public static Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_list);
+        mContext = this;
 
         recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
