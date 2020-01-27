@@ -57,9 +57,10 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     }
 
     // 생성자에서 데이터 리스트 객체를 전달받음.
+    /*
     public ChatRoomAdapter(ArrayList<String> list) {
         mData = list ;
-    }
+    }*/
 
     // onCreateViewHolder() - 아이템 뷰를 위한 뷰홀더 객체 생성하여 리턴.
     @Override
@@ -84,5 +85,9 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     @Override
     public int getItemCount() {
         return mData.size() ;
+    }
+
+    public void addItem(String item) {
+        mData.add(item);
     }
 }

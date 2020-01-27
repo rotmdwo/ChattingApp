@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +29,7 @@ public class Login extends AppCompatActivity {
     TextView textView,textView2;
     EditText editText, editText2;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    String id,password;
+    String id,password,userNum;
     Boolean isLoginChecked = false;
 
     @Override
@@ -68,16 +69,21 @@ public class Login extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("user").getChildren()){
                 Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
+
+
                 String temp_id = (String)message.get("userId");
                 String temp_pw = (String)message.get("password");
                 if(temp_id.equals(id) && temp_pw.equals(password)) {
+                    //유저 고유 번호 확인
+                    userNum = (dataSnapshot1.getKey().toString());
+
                     //아이디, 비밀번호 확인됨
                     isLoginChecked = true;
                     break;
                 }
             }
             if(isLoginChecked){
-                saveState(id);  //로그인 성공, 로그인 된 아이디 저장
+                saveState(id, userNum);  //로그인 성공, 로그인 된 아이디 저장
                 Intent intent = new Intent(getApplicationContext(), FriendListActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -92,10 +98,11 @@ public class Login extends AppCompatActivity {
         }
     };
 
-    public void saveState(String id){
+    public void saveState(String id, String user_num){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("id",id);
+        editor.putString("user_num", user_num);
         editor.commit();
     }
 }

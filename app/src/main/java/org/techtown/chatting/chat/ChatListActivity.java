@@ -46,7 +46,7 @@ public class ChatListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
-    ChatRoomAdapter adapter; //리사이클러뷰에 사용하는 어댑터
+    ChatRoomAdapter adapter = new ChatRoomAdapter(); //리사이클러뷰에 사용하는 어댑터
     String chatRoomNumList; //채팅방 이름
     int roomNum, member;
     String roomName;
@@ -129,18 +129,18 @@ public class ChatListActivity extends AppCompatActivity {
         setting.setOnClickListener(clickListener);
 
         addChatRoom.setOnClickListener(clickListener2);
-        Log.d("test", "myNum: " + myNum);
-        reference4 = FirebaseDatabase.getInstance().getReference().child("user").child("2").child("room");
+        reference4 = FirebaseDatabase.getInstance().getReference().child("user").child(restoreState("user_num")).child("room");
         reference4.addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.d("test", "Added 실행");
+                //Log.d("test", "Added 실행");
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.d("test", "changed 실행");
-                //reference.addListenerForSingleValueEvent(dataListener);
+                reference.addListenerForSingleValueEvent(dataListener);
             }
 
             @Override
@@ -168,11 +168,10 @@ public class ChatListActivity extends AppCompatActivity {
             Bundle bundle = data.getExtras();
             member = bundle.getInt("memberNum");
 
-
             for(int i=0; i<member; i++) {
                 addRoomUserList.add(bundle.getString("" + i));
             }
-            addRoomUserList.add(restoreState());
+            addRoomUserList.add(restoreState("id"));
             //몇명인지
             //bundle.getInt("memberNum");
 
@@ -195,56 +194,45 @@ public class ChatListActivity extends AppCompatActivity {
         // 리사이클러뷰에 표시할 데이터 리스트 생성.
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            Toast.makeText(getApplicationContext(), "불러오기", Toast.LENGTH_SHORT).show();
-            for (DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()) {
-                Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
-                //user의 자식 중에서 getSharedPreference 메서드를 사용, 사용자의 정보만 참조한다.
-                if (restoreState().equals(message2.get("userId"))) {
-                    myNum = Integer.parseInt(dataSnapshot2.getKey().toString());
-                    for (DataSnapshot dataSnapshot3 : dataSnapshot2.child("room").getChildren()) {
-                        //ArrayList 변수인 list에 방 번호를 String으로 받아옴
-                        String tmp = dataSnapshot3.getValue().toString();
-                        //list에 더한다
-                        list.add(tmp);
-                        for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Room").getChildren()) {
-                            if(dataSnapshot1.getKey().equals("rooms")) {
-                                for(DataSnapshot dataSnapshot4 : dataSnapshot1.getChildren()) {
+            Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child("2").child("room").getValue();
+            String tmp = "";
+            for ( String key : message.keySet() ) {
+                if(key.equals("size")) {
+                    //size일때
+                } else {
+                    tmp = message.get(key).toString();
+                    Log.d("test", tmp);
+                    adapter.addItem(tmp);
+                    //방 번호일때
 
-                                    if(dataSnapshot4.getKey().toString().equals(tmp)) {
-                                        for(DataSnapshot dataSnapshot5 : dataSnapshot4.getChildren()) {
-                                            if(dataSnapshot5.getKey().equals("name")) {
-                                                chatNameList.add(dataSnapshot5.getValue().toString());
-                                            }
-                                        }
-                                    }
-                                }
-                                //Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                                //Log.d("abcd", message.toString());
-                            }
-                        }
-                    }
-                    // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
-                    adapter = new ChatRoomAdapter(chatNameList);
-                    recyclerView.setAdapter(adapter);
 
-                    //리사이클러뷰의 채팅방을 클릭했을 경우,
-                    //list.get(position) 을 통해서 해당 채팅방의 아이디를 반환받을 수 있음
-                    adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View v, int position) {
-                            //intent로 ChatRoomActivity를 호출
-                            Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
-                            //방번호를 담음
-                            Log.d("test", list.get(position));
-                            chatIntent.putExtra("room_no", list.get(position));
-                            //intent 전달하면서 액티비티 시작함
-                            startActivity(chatIntent);
-                        }
-                    });
                 }
+
+                //key, map.get(key)
             }
 
 
+            //ArrayList 변수인 list에 방 번호를 String으로 받아옴
+            //String tmp = dataSnapshot2.getValue().toString();
+
+            // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
+            //adapter = new ChatRoomAdapter(chatNameList);
+            recyclerView.setAdapter(adapter);
+
+            //리사이클러뷰의 채팅방을 클릭했을 경우,
+            //list.get(position) 을 통해서 해당 채팅방의 아이디를 반환받을 수 있음
+            adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    //intent로 ChatRoomActivity를 호출
+                    Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                    //방번호를 담음
+                    Log.d("test", list.get(position));
+                    chatIntent.putExtra("room_no", list.get(position));
+                    //intent 전달하면서 액티비티 시작함
+                    startActivity(chatIntent);
+                }
+            });
         }
 
         @Override
@@ -309,11 +297,15 @@ public class ChatListActivity extends AppCompatActivity {
                     if(userInfo.get("userId").equals(string)) {
                         int whoIs = Integer.parseInt(dataSnapshot4.getKey().toString());
                         for(DataSnapshot dataSnapshot5 : dataSnapshot4.getChildren()) {
-                            //Log.d("test", "통과2");
 
                             if(dataSnapshot5.getKey().equals("room")) {
                                 Map<String, Object> userRoomUpdater = new HashMap<>();
                                 userRoomUpdater.put("user/" + whoIs + "/room/" +roomNum, roomNum);
+
+                                Map<String, Object> getSize = (Map<String, Object>) dataSnapshot5.getValue();
+                                int userRoomNum = Integer.parseInt(getSize.get("size").toString());
+                                userRoomNum++;
+                                userRoomUpdater.put("user/" + whoIs + "/room/size", userRoomNum);
 
                                 reference.updateChildren(userRoomUpdater);
                             }
@@ -322,18 +314,6 @@ public class ChatListActivity extends AppCompatActivity {
                             //Log.d("test", "" + userInfo2.toString());
 
                         }
-                        //size 먼저 가져와서줌
-                        //Map<String, Object> userInfo2 = (Map<String, Object>)dataSnapshot4.getChildren();
-                        //Map<String, Object> userRoomInfo = (Map<String, Object>) userInfo.get("room");
-                        //Log.d("test", "왜 팅기지");
-                        //Map<String, Object> roomValues = new HashMap<>();
-                        //roomValues.put();
-                        //가져온 다음에 room 밑
-                        //key : size+1
-                        //value : roomNum
-                        //으로 넣어
-
-
                     }
                 }
             }
@@ -345,9 +325,20 @@ public class ChatListActivity extends AppCompatActivity {
         }
     };
 
-
-    protected String restoreState(){
+    //입력 인자에 따라 유저 id 혹은 유저 고유 번호를 반환함
+    protected String restoreState(String choice){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
-        return pref.getString("id","");
+        String result;
+        if(choice.equals("id")) {
+            result = pref.getString("id","");
+            return result;
+        } else if(choice.equals("user_num")) {
+            result = pref.getString("user_num", "");
+            return result;
+        } else {
+            result = "";
+            return result;
+        }
+
     }
 }
