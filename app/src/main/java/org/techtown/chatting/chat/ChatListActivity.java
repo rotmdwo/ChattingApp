@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,7 +44,7 @@ public class ChatListActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
-    ChatRoomAdapter adapter; //리사이클러뷰에 사용하는 어댑터
+    ChatRoomAdapter adapter = new ChatRoomAdapter(); //리사이클러뷰에 사용하는 어댑터
     String chatRoomNumList; //채팅방 이름
     int roomNum, member;
     String roomName;
@@ -96,31 +95,20 @@ public class ChatListActivity extends AppCompatActivity {
                         finish();
                         break;
                 }
-
             }
         };
 
-        // +버튼 눌렀을때 채팅방 만들기
+        // 채팅방 추가 버튼 클릭 이벤트
         View.OnClickListener clickListener2 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //누구랑 채팅방을 만들건지 묻기
-
-                //톡방 이름을 정하기
-
-                //DB에 채팅방 업데이트
-                    //num_of_rooms 숫자 1늘리기
-                    //rooms밑에 테이블 만들기
-                    //만든 테이블의 num_of_messages를 0으로 한다.
-                    //만든 테이블의 name을 유저가 입력한 것으로 함
-
+                //AddChatActivity는 채팅방에 추가할 사용자의 친구를 선택함
+                //선택된 친구는 onActivityResult에서 응답받아서 처리함
+                //추후에 채팅방 이름 입력까지 추가할 예정.
                 Intent intent = new Intent(getApplicationContext(), AddChatActivity.class);
                 startActivityForResult(intent, REQUEST_CODE);
             }
         };
-
-
-        // 채팅방 누르면 startActivity
 
         person.setOnClickListener(clickListener);
         chatRoom.setOnClickListener(clickListener);
@@ -128,18 +116,17 @@ public class ChatListActivity extends AppCompatActivity {
         setting.setOnClickListener(clickListener);
 
         addChatRoom.setOnClickListener(clickListener2);
-        Log.d("test", "myNum: " + myNum);
-        reference4 = FirebaseDatabase.getInstance().getReference().child("user").child("2").child("room");
+        reference4 = FirebaseDatabase.getInstance().getReference().child("user").child(restoreState("user_num")).child("room");
         reference4.addChildEventListener(new ChildEventListener() {
+
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.d("test", "Added 실행");
+
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.d("test", "changed 실행");
-                //reference.addListenerForSingleValueEvent(dataListener);
+                reference.addListenerForSingleValueEvent(dataListener4);
             }
 
             @Override
@@ -159,91 +146,77 @@ public class ChatListActivity extends AppCompatActivity {
         });
     }
 
+    //AddChatActivity에서 넘어온 정보를 처리하는 함수
+    //intent에 bundle로 보낸 정보를 받음
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            //Intent intentFromAdd = getIntent();
+            //추가할 채팅방의 정보는 bundle에 들어있음: 채팅방 이름, 이용자 수, 이용자 목록
+            //data.getExtras로 번들을 받아온 뒤에, getInt 혹은 getString 함수로 번들에 들어있는 정보를 받으면 됨
             Bundle bundle = data.getExtras();
             member = bundle.getInt("memberNum");
 
-
+            //member 변수는 채팅방에 들어간 사람의 수
+            //addRoomUserList에 채팅방에 들어간 사람들의 id를 넣는다
             for(int i=0; i<member; i++) {
                 addRoomUserList.add(bundle.getString("" + i));
             }
-            addRoomUserList.add(restoreState());
-            //몇명인지
-            //bundle.getInt("memberNum");
+            //본인 id도 넣음
+            addRoomUserList.add(restoreState("id"));
 
+            //채팅방 이름을 받아옴 but,
             //일단 채팅방 이름은 android로 하자
             //roomName = bundle.getString("title");
             roomName = "android";
 
-            //데이터베이스에 업데이트
+            //받아온 정보를 데이터베이스에 업데이트
+            //dataListener2는 Room 테이블에 정보 추가
             reference2.addListenerForSingleValueEvent(dataListener2);
+            //dataListener3는 초대된 user 테이블에 정보 추가
             reference3.addListenerForSingleValueEvent(dataListener3);
         }
     }
 
-
-    //현재 들어가있는 톡방을 가져온다.
-    //일단 이 사람이 누구인지 알아야 하고 그 사람이 들어간 톡방 번호를 받아온다.
-    //그 톡방의 name 값을 받아와서 textView로 출력한다.
-
+    //리사이클러뷰에 표시할 데이터 리스트 생성하기 위해 DB와 통신
+    //액티비티가 초기화될때 첫 1회만 실행됨
     final ValueEventListener dataListener = new ValueEventListener() {
-        // 리사이클러뷰에 표시할 데이터 리스트 생성.
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            Toast.makeText(getApplicationContext(), "불러오기", Toast.LENGTH_SHORT).show();
-            for (DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()) {
-                Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
-                //user의 자식 중에서 getSharedPreference 메서드를 사용, 사용자의 정보만 참조한다.
-                if (restoreState().equals(message2.get("userId"))) {
-                    myNum = Integer.parseInt(dataSnapshot2.getKey().toString());
-                    for (DataSnapshot dataSnapshot3 : dataSnapshot2.child("room").getChildren()) {
-                        //ArrayList 변수인 list에 방 번호를 String으로 받아옴
-                        String tmp = dataSnapshot3.getValue().toString();
-                        //list에 더한다
-                        list.add(tmp);
-                        for(DataSnapshot dataSnapshot1 : dataSnapshot.child("Room").getChildren()) {
-                            if(dataSnapshot1.getKey().equals("rooms")) {
-                                for(DataSnapshot dataSnapshot4 : dataSnapshot1.getChildren()) {
+            //사용자의 room 테이블에 접근함
+            final Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
+            //현재는 방 번호만 받아와서 String이지만, 나중에 ChattingRoom 클래스를 adapter에 넣도록 변경해야함 (사진 구현할때 등등)
+            //ChattingRoom tmp = new ChattingRoom();
+            String tmp = "";
 
-                                    if(dataSnapshot4.getKey().toString().equals(tmp)) {
-                                        for(DataSnapshot dataSnapshot5 : dataSnapshot4.getChildren()) {
-                                            if(dataSnapshot5.getKey().equals("name")) {
-                                                chatNameList.add(dataSnapshot5.getValue().toString());
-                                            }
-                                        }
-                                    }
-                                }
-                                //Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                                //Log.d("abcd", message.toString());
-                            }
-                        }
-                    }
-                    // 리사이클러뷰에 ChatRoomAdapter 객체 지정.
-                    adapter = new ChatRoomAdapter(chatNameList);
-                    recyclerView.setAdapter(adapter);
-
-                    //리사이클러뷰의 채팅방을 클릭했을 경우,
-                    //list.get(position) 을 통해서 해당 채팅방의 아이디를 반환받을 수 있음
-                    adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View v, int position) {
-                            //intent로 ChatRoomActivity를 호출
-                            Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
-                            //방번호를 담음
-                            Log.d("test", list.get(position));
-                            chatIntent.putExtra("room_no", Integer.parseInt(list.get(position)));
-                            //intent 전달하면서 액티비티 시작함
-                            startActivity(chatIntent);
-                        }
-                    });
+            //for문을 돌면서 현재 사용자가 들어간 채팅방을 탐색함
+            for ( String key : message.keySet() ) {
+                //key값이 size일때 예외처리
+                if(key.equals("size")) {
+                    continue;
+                } else {
+                    //방 번호를 tmp에 넣음
+                    tmp = message.get(key).toString();
+                    //adapter에 아이템 추가
+                    adapter.addItem(tmp);
                 }
             }
 
+            // 리사이클러뷰에 adapter 지정
+            recyclerView.setAdapter(adapter);
 
+            //리사이클러뷰의 채팅방을 클릭했을 경우 이벤트 리스너
+            //ChatRoomAdapter에 구현된 getItem 메서드 활용
+            adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                    //방번호를 담음
+                    chatIntent.putExtra("room_no", adapter.getItem(position));
+                    //방 번호를 intent로 전달하면서 액티비티 시작함
+                    startActivity(chatIntent);
+                }
+            });
         }
 
         @Override
@@ -252,23 +225,21 @@ public class ChatListActivity extends AppCompatActivity {
         }
     };
 
+    //채팅방을 추가할때 DB의 Room 테이블과 통신
     final ValueEventListener dataListener2 = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            //Log.d("test", "호출 되는지 테스트");
-
             Map<String, Object> message = (Map<String, Object>) dataSnapshot.getValue();
-
-            //방 개수 받아와서 추가
-            roomNum = Integer.parseInt(message.get("num_of_rooms").toString());
-            roomNum ++;
             Map<String, Object> roomUpdater1 = new HashMap<>();
 
+            //방 개수 받아옴
+            roomNum = Integer.parseInt(message.get("num_of_rooms").toString());
+            roomNum ++;
             //방 개수 DB에 업로드
             roomUpdater1.put("Room/num_of_rooms", roomNum);
 
             //방 정보 업데이트: 방 이름, 메세지 수
-            //멤버 수는 아직 보류
+            //멤버 수는 보류
             Map<String, Object> roomValues = new HashMap<>();
             roomValues.put("name", roomName);
             roomValues.put("num_of_messages", 0);
@@ -277,12 +248,11 @@ public class ChatListActivity extends AppCompatActivity {
             //방 추가 및 DB에 업로드
             Map<String, Object> roomUpdater2 = new HashMap<>();
             roomUpdater2.put("Room/rooms/"+roomNum, roomValues);
-
             reference.updateChildren(roomUpdater1);
             reference.updateChildren(roomUpdater2);
-            Log.d("debug", "정상적으로 방 생성했습니다.");
 
-
+            //디버깅용 로그 출력
+            //Log.d("debug", "정상적으로 방 생성했습니다.");
         }
 
         @Override
@@ -291,48 +261,32 @@ public class ChatListActivity extends AppCompatActivity {
         }
     };
 
+    //채팅방이 추가된 사용자의 User 테이블과 통신
+    //사용자가 방 멤버로 추가한 모든 사람의 room 밑에 방 정보를 추가해야함
     final ValueEventListener dataListener3 = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            //사용자가 방 멤버로 추가한 모든 사람의 room 밑에 방 정보를 추가해야함
-
             for(DataSnapshot dataSnapshot4 : dataSnapshot.getChildren()) {
-
                 Map<String, Object> userInfo = (Map<String, Object>) dataSnapshot4.getValue();
-                //Log.d("test", ""+ dataSnapshot4.getKey());
-                //Log.d("test", ""+ userInfo.toString());
-                //만약, 현재 userInfo가 사용자가 추가한 상대의 아이디와 같다면
-                    //방에 번호를 추가한다.
 
+                //addRoomUserList에 추가된 사용자의 id가 들어있음
                 for(String string : addRoomUserList) {
                     if(userInfo.get("userId").equals(string)) {
+                        //id로 해당 사용자가 DB에서 몇번인지 확인함: whoIs 변수에 저장
                         int whoIs = Integer.parseInt(dataSnapshot4.getKey().toString());
                         for(DataSnapshot dataSnapshot5 : dataSnapshot4.getChildren()) {
-                            //Log.d("test", "통과2");
-
                             if(dataSnapshot5.getKey().equals("room")) {
+                                Map<String, Object> getSize = (Map<String, Object>) dataSnapshot5.getValue();
                                 Map<String, Object> userRoomUpdater = new HashMap<>();
-                                userRoomUpdater.put("user/" + whoIs + "/room/" +roomNum, roomNum);
+                                int userRoomNum = Integer.parseInt(getSize.get("size").toString());
+                                userRoomNum++;
+
+                                userRoomUpdater.put("user/" + whoIs + "/room/" +userRoomNum, roomNum);
+                                userRoomUpdater.put("user/" + whoIs + "/room/size", userRoomNum);
 
                                 reference.updateChildren(userRoomUpdater);
                             }
-
-                            //Map<String, Object> userInfo2 = (Map<String, Object>) dataSnapshot5.getValue();
-                            //Log.d("test", "" + userInfo2.toString());
-
                         }
-                        //size 먼저 가져와서줌
-                        //Map<String, Object> userInfo2 = (Map<String, Object>)dataSnapshot4.getChildren();
-                        //Map<String, Object> userRoomInfo = (Map<String, Object>) userInfo.get("room");
-                        //Log.d("test", "왜 팅기지");
-                        //Map<String, Object> roomValues = new HashMap<>();
-                        //roomValues.put();
-                        //가져온 다음에 room 밑
-                        //key : size+1
-                        //value : roomNum
-                        //으로 넣어
-
-
                     }
                 }
             }
@@ -344,9 +298,71 @@ public class ChatListActivity extends AppCompatActivity {
         }
     };
 
+    //리사이클러뷰에 표시할 데이터 리스트 생성하기 위해 DB와 통신
+    //dataListener1과 다르게 채팅방 리스트에 변화가 생길때마다 실행됨
+    final ValueEventListener dataListener4 = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            final Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
+            //현재는 방 번호만 받아와서 String이지만, 나중에 ChattingRoom 클래스를 adapter에 넣도록 변경해야함 (사진 구현할때 등등)
+            //ChattingRoom tmp = new ChattingRoom();
+            String tmp = "";
+            String size = "";
 
-    protected String restoreState(){
+            //for문을 돌면서 현재 사용자가 들어간 채팅방을 탐색함
+            for ( String key : message.keySet() ) {
+                //key값이 size일때 예외처리
+                if(key.equals("size")) {
+                    size = (message.get(key).toString());
+                    break;
+                }
+            }
+
+            for ( String key : message.keySet() ) {
+                if(key.equals(size)) {
+                    tmp = message.get(key).toString();
+                    break;
+                }
+            }
+
+            adapter.addItem(tmp);
+            // 리사이클러뷰에 adapter 지정
+            recyclerView.setAdapter(adapter);
+
+            //리사이클러뷰의 채팅방을 클릭했을 경우 이벤트 리스너
+            //ChatRoomAdapter에 구현된 getItem 메서드 활용
+            adapter.setOnItemClickListener(new ChatRoomAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
+                    //방번호를 담음
+                    chatIntent.putExtra("room_no", adapter.getItem(position));
+                    //방 번호를 intent로 전달하면서 액티비티 시작함
+                    startActivity(chatIntent);
+                }
+            });
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+    //입력 인자에 따라 유저 id 혹은 유저 고유 번호를 반환함
+    protected String restoreState(String choice){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
-        return pref.getString("id","");
+        String result;
+        if(choice.equals("id")) {
+            result = pref.getString("id","");
+            return result;
+        } else if(choice.equals("user_num")) {
+            result = pref.getString("user_num", "");
+            return result;
+        } else {
+            result = "";
+            return result;
+        }
+
     }
 }

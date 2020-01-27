@@ -52,7 +52,6 @@ public class AddChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(view.getId() == R.id.button3) {
-                    //Toast.makeText(getApplicationContext(), "채팅방을 만들었어요.", Toast.LENGTH_LONG).show();
                     if(selectedList.size() == 0) {
                         Toast.makeText(getApplicationContext(), "최소한 한명을 선택해주세요.", Toast.LENGTH_SHORT).show();
                         return;
@@ -69,7 +68,7 @@ public class AddChatActivity extends AppCompatActivity {
                     setResult(RESULT_OK, intent);
                     finish();
                 } else if(view.getId() == R.id.button4) {
-                    Toast.makeText(getApplicationContext(), "채팅방 생성을 취소해요.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "채팅방 생성을 취소해요.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
