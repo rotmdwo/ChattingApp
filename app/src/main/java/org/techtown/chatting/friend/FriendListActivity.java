@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.AddFriend.AddFriendActivity;
+import org.techtown.chatting.AddFriend.ReceiveFriendRequestActivity;
 import org.techtown.chatting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
@@ -32,11 +33,14 @@ import java.util.Map;
 
 public class FriendListActivity extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("FriendRequest");
     ImageView person, chatRoom, randomChat, setting;
     FriendAdapter adapter = new FriendAdapter();
     RecyclerView recyclerView;
     TextView textView_name, textView_statement_message; //유저의 이름과 상태메세지 텍스트뷰
     String name, statement_message; //유저의 이름과 상태메세지 변수
+    Boolean gotFriendRequest = false;
+    ImageButton button2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,7 @@ public class FriendListActivity extends AppCompatActivity {
         textView_statement_message=findViewById(R.id.textView2);
 
         reference.addListenerForSingleValueEvent(dataListener);
+        reference2.addListenerForSingleValueEvent(dataListener2);
 
         person = (ImageView)findViewById(R.id.person);
         chatRoom = (ImageView)findViewById(R.id.chatRoom);
@@ -100,11 +105,21 @@ public class FriendListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        button2 = findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ReceiveFriendRequestActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     ValueEventListener dataListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
             for(DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()){
                 Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
                 if(restoreState().equals(message2.get("userId"))){
@@ -131,6 +146,28 @@ public class FriendListActivity extends AppCompatActivity {
             }
 
             recyclerView.setAdapter(adapter);
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+    ValueEventListener dataListener2 = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+            Map<String, Object> message = (Map<String, Object>) dataSnapshot.getValue();
+            int user_num = Integer.parseInt(message.get("num").toString());
+
+            for(int i=1;i<=user_num;i++){
+                Map<String, Object> message2 = (Map<String, Object>) message.get(Integer.toString(i));
+                if(((String)message2.get("toWhom")).equals(restoreState())){
+                    gotFriendRequest = true;
+                    button2.setBackgroundResource(R.drawable.human_plus);
+                }
+            }
         }
 
         @Override

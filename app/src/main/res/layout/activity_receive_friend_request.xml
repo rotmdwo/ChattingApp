@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="대화 상대 고르기"
+        android:text="받은 친구요청"
         android:textSize="20sp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -32,16 +32,11 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="취소" />
+            android:text="닫기" />
 
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="확인" />
     </LinearLayout>
 
 </LinearLayout>

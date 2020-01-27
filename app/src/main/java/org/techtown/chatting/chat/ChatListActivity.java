@@ -26,7 +26,6 @@ import org.techtown.chatting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
-import org.techtown.chatting.friend.Friend;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
 
@@ -236,7 +235,7 @@ public class ChatListActivity extends AppCompatActivity {
                             Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
                             //방번호를 담음
                             Log.d("test", list.get(position));
-                            chatIntent.putExtra("room_no", list.get(position));
+                            chatIntent.putExtra("room_no", Integer.parseInt(list.get(position)));
                             //intent 전달하면서 액티비티 시작함
                             startActivity(chatIntent);
                         }

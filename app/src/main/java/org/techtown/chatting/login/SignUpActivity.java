@@ -1,8 +1,5 @@
 package org.techtown.chatting.login;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +8,9 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -171,6 +171,10 @@ public class SignUpActivity extends AppCompatActivity {
             }
             if(inputId.equals("")) {
                 Toast.makeText(getApplicationContext(), "아이디를 입력해주세요", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if(inputId.equals("deleted")||inputId.equals("accepted")) {
+                Toast.makeText(getApplicationContext(), "사용할 수 없는 아이디입니다.", Toast.LENGTH_LONG).show();
                 return;
             }
             Toast.makeText(getApplicationContext(), "아이디 중복 확인 완료. ", Toast.LENGTH_LONG).show();

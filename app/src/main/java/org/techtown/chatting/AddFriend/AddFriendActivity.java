@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -151,8 +152,9 @@ public class AddFriendActivity extends AppCompatActivity {
 
             for(int i=1;i<=user_num;i++){
                 Map<String, Object> message2 = (Map<String, Object>) message.get(Integer.toString(i));
-                if(((String)message2.get("requester")).equals(restoreState()) && ((String)message2.get("toWhom")).equals(id)){
+                if((((String)message2.get("requester")).equals(restoreState()) && ((String)message2.get("toWhom")).equals(id)) || (((String)message2.get("requester")).equals(id) && ((String)message2.get("toWhom")).equals(restoreState()))){
                     alreadyAdded = true;
+                    Toast.makeText(getApplicationContext(),"이미 친구요청을 보냈거나 상대방이 요청한 상태입니다.",Toast.LENGTH_LONG).show();
                 }
             }
 
