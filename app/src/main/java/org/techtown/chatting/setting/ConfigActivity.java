@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.setting;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.login.Login;
@@ -23,6 +24,8 @@ public class ConfigActivity extends AppCompatActivity {
     ImageView person, chatRoom, randomChat, setting;
 
     ListView listView;
+
+    private long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,7 @@ public class ConfigActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 } else if(item.equals("프로필 관리")){
-                    Intent intent = new Intent(getApplicationContext(),ProfileManagement.class);
+                    Intent intent = new Intent(getApplicationContext(), ProfileManagement.class);
                     startActivity(intent);
                 } else if(item.equals("문의하기")) {
                     Intent email = new Intent(Intent.ACTION_SEND);
@@ -108,5 +111,16 @@ public class ConfigActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
+        }
     }
 }

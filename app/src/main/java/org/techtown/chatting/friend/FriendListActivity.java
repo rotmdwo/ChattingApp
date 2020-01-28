@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,7 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.AddFriend.AddFriendActivity;
 import org.techtown.chatting.AddFriend.ReceiveFriendRequestActivity;
-import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
@@ -33,6 +34,7 @@ import org.techtown.chatting.ranChat.RandomChatActivity;
 import java.util.Map;
 
 public class FriendListActivity extends AppCompatActivity {
+    private long time;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference().child("FriendRequest");
     ImageView person, chatRoom, randomChat, setting;
@@ -182,5 +184,16 @@ public class FriendListActivity extends AppCompatActivity {
     protected String restoreState(){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
         return pref.getString("id","");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
+        }
     }
 }

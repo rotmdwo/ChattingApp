@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.setting;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,7 +8,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import org.techtown.chatting.R;
 
 public class ProfileManagement extends AppCompatActivity {
     static final String[] LIST_MENU = {"상태메세지 변경","프로필사진 변경"} ;
@@ -30,7 +31,7 @@ public class ProfileManagement extends AppCompatActivity {
                 String item = (String)adapterView.getItemAtPosition(i);
 
                 if(item.equals("상태메세지 변경")) {
-                    Intent intent = new Intent(getApplicationContext(),StateMessageChange.class);
+                    Intent intent = new Intent(getApplicationContext(), StateMessageChange.class);
                     startActivity(intent);
                 }
             }

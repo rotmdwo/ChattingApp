@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.setting;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +16,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.techtown.chatting.R;
 
 import java.util.HashMap;
 import java.util.Map;

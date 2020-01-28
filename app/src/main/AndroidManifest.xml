@@ -14,9 +14,9 @@
         <activity android:name=".AddFriend.ReceiveFriendRequestActivity"></activity>
         <activity android:name=".chat.addChatRoom.AddChatActivity" />
         <activity android:name=".chat.ChatRoomActivity" />
-        <activity android:name=".StateMessageChange" />
-        <activity android:name=".ProfileManagement" />
-        <activity android:name=".ConfigActivity" />
+        <activity android:name=".setting.StateMessageChange" />
+        <activity android:name=".setting.ProfileManagement" />
+        <activity android:name=".setting.ConfigActivity" />
         <activity android:name=".friend.FriendListActivity" />
         <activity android:name=".AddFriend.AddFriendActivity" />
         <activity android:name=".chat.ChatListActivity" />

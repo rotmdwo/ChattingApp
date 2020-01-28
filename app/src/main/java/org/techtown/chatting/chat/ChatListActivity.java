@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
@@ -57,6 +57,8 @@ public class ChatListActivity extends AppCompatActivity {
     //얘넨뭐지
     int roomNum, member;
     String roomName;
+
+    private long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -364,5 +366,16 @@ public class ChatListActivity extends AppCompatActivity {
             return result;
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
+        }
     }
 }

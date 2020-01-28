@@ -21,7 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.chat.ChatListActivity;
-import org.techtown.chatting.ConfigActivity;
+import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.R;
 
@@ -45,6 +45,8 @@ public class RandomChatActivity extends AppCompatActivity {
     Boolean isMatched = false;
 
     ImageView person, chatRoom, randomChat, setting; //하단바 관련 변수
+
+    private long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -256,6 +258,17 @@ public class RandomChatActivity extends AppCompatActivity {
             reference.updateChildren(childUpdates);
             key_reference.updateChildren(key_childUpdates);
             already_added_to_waitingList = 1;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
         }
     }
 }
