@@ -57,9 +57,6 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         //find room number
         reference.addListenerForSingleValueEvent(findRoom);
 
-
-
-
         recyclerView = findViewById(R.id.recyclerView_random);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -94,7 +91,20 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            roomReference.addListenerForSingleValueEvent(newChat);
+            Log.d(TAG, "child change");
+            Log.d(TAG, dataSnapshot.getKey());
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                Log.d(TAG, dataSnapshot1.getKey());
+                if(Long.parseLong(dataSnapshot1.getKey()) == num_message+1){
+                    Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
+                    num_message ++;
+                    Log.d(TAG, Integer.toString(num_message));
+                    Log.d(TAG, "id: "+(String)message.get("id"));
+                    Log.d(TAG,"message: "+ (String)message.get("message"));
+                    adapter.addItem(new randomMessage((String)message.get("id"), (String)message.get("message")), getApplicationContext());
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
 
         @Override
@@ -137,8 +147,9 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
             for(DataSnapshot dataSnapshot2 : dataSnapshot.child("randomRoom").child(Long.toString(roomNum)).child("chat").getChildren()){
                 num_message ++;
             }
-            roomReference.addListenerForSingleValueEvent(chatList);
             roomReference.addChildEventListener(childEventListener);
+            roomReference.addListenerForSingleValueEvent(chatList);
+//            roomReference.addChildEventListener(childEventListener);
 
             chatName.setText(otherId + "와의 채팅방");
         }
