@@ -21,6 +21,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/ran_option"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
@@ -31,10 +32,11 @@
             android:textStyle="bold" />
 
         <LinearLayout
+            android:id="@+id/rand_option1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             android:orientation="horizontal">
 
             <CheckBox
@@ -52,6 +54,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/rand_option2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -84,6 +87,28 @@
             android:text="시작하기"
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
+
+        <ProgressBar
+            android:layout_marginTop="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="400dp"
+            android:minHeight="150dp"
+            android:max="100"
+            style="?android:attr/progressBarStyleLarge"
+            android:visibility="gone"
+            android:id="@+id/progress_circular"/>
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_marginTop = "20dp"
+            android:layout_width="match_parent"
+            android:textAlignment = "center"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="매칭중입니다."
+            />
+
     </LinearLayout>
 
     <LinearLayout
@@ -126,6 +151,7 @@
             android:layout_weight="1"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_settings_black_24dp" />
+
 
     </LinearLayout>
 
