@@ -17,6 +17,7 @@ import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.login.Login;
+import org.techtown.chatting.ranChat.EnterRandomChat;
 import org.techtown.chatting.ranChat.RandomChatActivity;
 
 public class ConfigActivity extends AppCompatActivity {
@@ -53,7 +54,7 @@ public class ConfigActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.randomChat:
-                        intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                        intent = new Intent(getApplicationContext(), EnterRandomChat.class);
                         startActivity(intent);
                         finish();
                         break;

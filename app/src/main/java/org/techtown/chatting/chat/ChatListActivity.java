@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.techtown.chatting.ranChat.EnterRandomChat;
 import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
@@ -94,7 +95,7 @@ public class ChatListActivity extends AppCompatActivity {
                         finish();*/
                         break;
                     case R.id.randomChat:
-                        intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                        intent = new Intent(getApplicationContext(), EnterRandomChat.class);
                         startActivity(intent);
                         finish();
                         break;
