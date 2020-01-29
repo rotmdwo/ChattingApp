@@ -1,7 +1,6 @@
 package org.techtown.chatting.chat;
 
 import android.app.Activity;
-import android.util.Log;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.common.data.DataBufferUtils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,12 +23,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.NotificationActivity;
-import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
+import org.techtown.chatting.setting.ConfigActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,14 +57,14 @@ public class ChatListActivity extends AppCompatActivity {
     //액티비티 관련 변수
     ImageView addChatRoom; //채팅방 새로 만드는 상단 버튼
 
-    //얘넨뭐지
-    int roomNum, member;
-    String roomName;
+    //채팅방 생성 관련 변수
+    int roomNum, member; //유저가 추가한 채팅방 id와 인원수
+    String roomName; //유저가 입력한 채팅방 이름
 
     private long time;
 
-    int removedPosition;
-    String removedItemInDB;
+    int removedPosition; //삭제된 채팅방 위치
+    String removedItemInDB; //삭제된 채팅방 DB 위치
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +79,18 @@ public class ChatListActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+
+        reference.addListenerForSingleValueEvent(dataListener);         //액티비티가 create될때 DB에서 처음으로 채팅방 목록을 받아옴
+
         addChatRoom = (ImageView)findViewById(R.id.addChatRoom);
 
-        reference.addListenerForSingleValueEvent(dataListener);
-
+        //하단바 관련 변수
         person = (ImageView)findViewById(R.id.person);
         chatRoom = (ImageView)findViewById(R.id.chatRoom);
         randomChat = (ImageView)findViewById(R.id.randomChat);
         setting = (ImageView)findViewById(R.id.setting);
 
+        //하단바 클릭 이벤트 리스너
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,24 +120,26 @@ public class ChatListActivity extends AppCompatActivity {
             }
         };
 
-        // 채팅방 추가 버튼 클릭 이벤트
+        // 채팅방 추가 버튼 클릭 이벤트 리스너
         View.OnClickListener clickListener2 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //AddChatActivity는 채팅방에 추가할 사용자의 친구를 선택함
-                //선택된 친구는 onActivityResult에서 응답받아서 처리함
+
                 //추후에 채팅방 이름 입력까지 추가할 예정.
-                Intent intent = new Intent(getApplicationContext(), AddChatActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
+                Intent intent = new Intent(getApplicationContext(), AddChatActivity.class);     //AddChatActivity에서 채팅방에 추가할 사용자의 친구를 선택
+                startActivityForResult(intent, REQUEST_CODE);                                   //onActivityResult 메서드에서 받은 응답을 처리함
             }
         };
 
+        //채팅방 추가 변수 리스너 설정
+        addChatRoom.setOnClickListener(clickListener2);
+
+        //하단바 변수들 리스너 설정
         person.setOnClickListener(clickListener);
         chatRoom.setOnClickListener(clickListener);
         randomChat.setOnClickListener(clickListener);
         setting.setOnClickListener(clickListener);
 
-        addChatRoom.setOnClickListener(clickListener2);
         reference4 = FirebaseDatabase.getInstance().getReference().child("user").child(restoreState("user_num")).child("room");
         reference4.addChildEventListener(new ChildEventListener() {
 
@@ -167,6 +170,8 @@ public class ChatListActivity extends AppCompatActivity {
         });
     }
 
+    //채팅방 슬라이드 이벤트 리스너
+    //추후에 채팅방 순서 변경도 구현 예정
     ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -175,64 +180,50 @@ public class ChatListActivity extends AppCompatActivity {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            // 삭제되는 아이템의 포지션을 가져온다
-            removedPosition = viewHolder.getAdapterPosition();
-            // 토스트 메세지로 해당 포지션을 알린다
-            //Toast.makeText(getApplicationContext(), position + "을 " + direction + "으로 스와이프", Toast.LENGTH_SHORT).show();
-            //4가 왼쪽으로, 8이 오른쪽으로 스와이프임
+            removedPosition = viewHolder.getAdapterPosition();          // 삭제되는 아이템의 포지션을 가져온다
             Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
-            startActivityForResult(intent, DELETE_CODE);
-
-            // 아답타에게 알린다
-            // recyclerView.getAdapter().notifyItemRemoved(position);
+            startActivityForResult(intent, DELETE_CODE);                //요청코드 'DELETE_CODE'로 삭제 의사 요청
         }
     };
 
     //AddChatActivity에서 넘어온 정보를 처리하는 함수
     //intent에 bundle로 보낸 정보를 받음
+    //NotificationActivity에서 넘어온 정보도 처리함
+    //intent에 "delete"로 담긴 정수가 1이면 삭제, 0이면 삭제하지 않음, -1은 기본값.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            //추가할 채팅방의 정보는 bundle에 들어있음: 채팅방 이름, 이용자 수, 이용자 목록
-            //data.getExtras로 번들을 받아온 뒤에, getInt 혹은 getString 함수로 번들에 들어있는 정보를 받으면 됨
-            Bundle bundle = data.getExtras();
-            member = bundle.getInt("memberNum");
 
-            //member 변수는 채팅방에 들어간 사람의 수
-            //addRoomUserList에 채팅방에 들어간 사람들의 id를 넣는다
+            Bundle bundle = data.getExtras();                           //추가할 채팅방의 정보는 bundle에 들어있음: 채팅방 이름, 이용자 수, 이용자 목록
+            member = bundle.getInt("memberNum");                   //member 변수는 채팅방에 들어간 사람의 수
+
             for(int i=0; i<member; i++) {
-                addRoomUserList.add(bundle.getString("" + i));
+                addRoomUserList.add(bundle.getString("" + i));     //addRoomUserList에 채팅방에 들어간 사람들의 id를 넣는다
             }
 
-            addRoomUserList.add(restoreState("id")); //본인 id도 넣음
+            addRoomUserList.add(restoreState("id"));            //addRoomUserList에 본인 id도 추가
 
-            //유저가 입력한 채팅방 이름을 받아옴 but,
-            //일단 채팅방 이름은 android로 하자
-            //roomName = bundle.getString("title");
-            roomName = "android";
+            //roomName = bundle.getString("title");                     //유저가 입력한 채팅방 이름을 받아옴
+            roomName = "android";                                       //일단 채팅방 이름은 기본값 android로 고정함
 
             //받아온 정보를 데이터베이스에 업데이트
-            //dataListener2는 Room 테이블에 정보 추가
-            reference2.addListenerForSingleValueEvent(dataListener2);
-            //dataListener3는 초대된 user 테이블에 정보 추가
-            reference3.addListenerForSingleValueEvent(dataListener3);
+            reference2.addListenerForSingleValueEvent(dataListener2);   //dataListener2는 Room 테이블에 정보 추가
+            reference3.addListenerForSingleValueEvent(dataListener3);   //dataListener3는 초대된 user 테이블에 정보 추가
         }
+
         if(requestCode == DELETE_CODE && resultCode == RESULT_OK) {
             int result = data.getIntExtra("delete", -1);
             if(result == 1) {
-                //삭제하기
-                //Toast.makeText(getApplicationContext(), adapter.getRoomIdByPosition(removedPosition) + "번 방을 삭제 했어요", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),
+                        "삭제 했어요", Toast.LENGTH_SHORT).show();                             //삭제했다고 사용자에게 알림
                 removedItemInDB = adapter.getRoomIdByPosition(removedPosition);
-                adapter.removeItem(removedPosition);
-                recyclerView.removeViewsInLayout(removedPosition, 1);
-                adapter.notifyItemRemoved(removedPosition);
-                //reference2.addListenerForSingleValueEvent(dataListener5);
-                reference.addListenerForSingleValueEvent(dataListener6);
-
+                adapter.removeItem(removedPosition);                                                //어댑터에서 아이템 삭제
+                adapter.notifyItemRemoved(removedPosition);                                         //어댑터에 삭제되었음을 알림 (굳이 해야되나?)
+                reference.addListenerForSingleValueEvent(dataListener6);                            //삭제한 사람의 DB에서만 채팅방 목록 삭제
             } else {
-                Toast.makeText(getApplicationContext(), "취소 했어요", Toast.LENGTH_SHORT).show();
-                //삭제안함
+                Toast.makeText(getApplicationContext(),
+                        "취소 했어요", Toast.LENGTH_SHORT).show();                             //삭제안했다고 사용자에게 알림
             }
 
         }
@@ -252,16 +243,19 @@ public class ChatListActivity extends AppCompatActivity {
                 if(key.equals("size")) {
                     continue;
                 } else {
-                    adapter.addItem(new ChattingRoom("android", message.get(key).toString())); //adapter에 아이템 추가
+                    String roomId = message.get(key).toString();
+                    final Map<String, Object> message2 =
+                            (Map<String, Object>)dataSnapshot
+                                    .child("Room")
+                                    .child("rooms")
+                                    .child(roomId)
+                                    .getValue();                                                    //DB에 접근해서 해당 name을 받아옴
+                    String roomName = message2.get("name").toString();
+                    adapter.addItem(new ChattingRoom(roomName, roomId));                            //adapter에 아이템 추가
                 }
             }
 
-
-
-            // 리사이클러뷰에 adapter 지정
-            recyclerView.setAdapter(adapter);
-
-            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+            recyclerView.setAdapter(adapter);                                                       // 리사이클러뷰에 adapter 지정
 
             //리사이클러뷰의 채팅방을 클릭했을 경우 이벤트 리스너
             //ChatRoomAdapter에 구현된 getItem 메서드 활용
@@ -269,9 +263,7 @@ public class ChatListActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(View v, int position) {
                     Intent chatIntent = new Intent(getApplicationContext(), ChatRoomActivity.class);
-                    //방번호를 담음
-                    chatIntent.putExtra("room_no", adapter.getItem(position));
-                    //방 번호를 intent로 전달하면서 액티비티 시작함
+                    chatIntent.putExtra("room_no", adapter.getItem(position));               //방 번호를 intent로 전달하면서 액티비티 시작함
                     startActivity(chatIntent);
                 }
             });
@@ -290,27 +282,25 @@ public class ChatListActivity extends AppCompatActivity {
             Map<String, Object> message = (Map<String, Object>) dataSnapshot.getValue();
             Map<String, Object> roomUpdater1 = new HashMap<>();
 
-            //방 개수 받아옴
-            roomNum = Integer.parseInt(message.get("num_of_rooms").toString());
-            roomNum ++;
-            //방 개수 DB에 업로드
-            roomUpdater1.put("Room/num_of_rooms", roomNum);
 
-            //방 정보 업데이트: 방 이름, 메세지 수
-            //멤버 수는 보류
-            Map<String, Object> roomValues = new HashMap<>();
+            roomNum = Integer.parseInt(message.get("num_of_rooms").toString());                     //방 개수 받아옴
+            roomNum ++;
+            roomUpdater1.put("Room/num_of_rooms", roomNum);                                      //방 개수 DB에 업로드
+
+            Map<String, Object> roomValues = new HashMap<>();                                       //방 정보 업데이트: 방 이름, 메세지 수
             roomValues.put("name", roomName);
             roomValues.put("num_of_messages", 0);
-            //roomValues.put("num_of_members", member);
+            //roomValues.put("num_of_members", member);                                             //멤버수는 보류 (멤버수가 0이면 자동으로 폭파되게 하면 좋을듯)
 
-            //방 추가 및 DB에 업로드
+
             Map<String, Object> roomUpdater2 = new HashMap<>();
-            roomUpdater2.put("Room/rooms/"+roomNum, roomValues);
+            roomUpdater2.put("Room/rooms/"+roomNum, roomValues);                                 //방 추가 및 DB에 업로드
             reference.updateChildren(roomUpdater1);
             reference.updateChildren(roomUpdater2);
 
-            //디버깅용 로그 출력
-            //Log.d("debug", "정상적으로 방 생성했습니다.");
+            Toast.makeText(getApplicationContext(),
+                    "새로운 채팅방이 만들어졌어요", Toast.LENGTH_SHORT).show();                //방 생성했다고 사용자에게 알리기
+
         }
 
         @Override
@@ -362,7 +352,6 @@ public class ChatListActivity extends AppCompatActivity {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             final Map<String, Object> message = (Map<String, Object>)dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
-            //현재는 방 번호만 받아와서 String이지만, 나중에 ChattingRoom 클래스를 adapter에 넣도록 변경해야함 (사진 구현할때 등등)
             //ChattingRoom tmp = new ChattingRoom();
             String size = "";
 
@@ -377,7 +366,7 @@ public class ChatListActivity extends AppCompatActivity {
 
             for ( String key : message.keySet() ) {
                 if(key.equals(size)) {
-                    adapter.addItem(new ChattingRoom("android", message.get(key).toString())); //adapter에 아이템 추가
+                    adapter.addItem(new ChattingRoom(roomName, message.get(key).toString())); //adapter에 아이템 추가
                     break;
                 }
             }
