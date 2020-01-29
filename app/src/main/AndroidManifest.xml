@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".ranChat.RandomChattingRoomActivity"></activity>
+        <activity android:name=".NotificationActivity"></activity>
+        <activity android:name=".ranChat.RandomChattingRoomActivity" />
         <activity android:name=".AddFriend.ReceiveFriendRequestActivity" />
         <activity android:name=".chat.addChatRoom.AddChatActivity" />
         <activity android:name=".chat.ChatRoomActivity" />

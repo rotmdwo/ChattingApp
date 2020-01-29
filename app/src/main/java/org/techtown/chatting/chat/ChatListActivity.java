@@ -1,6 +1,7 @@
 package org.techtown.chatting.chat;
 
 import android.app.Activity;
+import android.util.Log;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,9 +12,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.common.data.DataBufferUtils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.techtown.chatting.NotificationActivity;
 import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
@@ -43,6 +47,7 @@ public class ChatListActivity extends AppCompatActivity {
 
     //액티비티간 정보 전달 상수 (startActivityForResult)
     public static final int REQUEST_CODE = 001;
+    public static final int DELETE_CODE = 005;
 
     //채팅방 리사이클러뷰 관련 변수
     RecyclerView recyclerView; //채팅방 목록을 표시하는 리사이클러뷰
@@ -60,6 +65,9 @@ public class ChatListActivity extends AppCompatActivity {
 
     private long time;
 
+    int removedPosition;
+    String removedItemInDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +76,10 @@ public class ChatListActivity extends AppCompatActivity {
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         recyclerView = findViewById(R.id.chatRoomList) ;
         recyclerView.setLayoutManager(new LinearLayoutManager(this)) ;
+
+        //ItemTouchHelper로 슬라이드 구현
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         addChatRoom = (ImageView)findViewById(R.id.addChatRoom);
 
@@ -155,6 +167,27 @@ public class ChatListActivity extends AppCompatActivity {
         });
     }
 
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            // 삭제되는 아이템의 포지션을 가져온다
+            removedPosition = viewHolder.getAdapterPosition();
+            // 토스트 메세지로 해당 포지션을 알린다
+            //Toast.makeText(getApplicationContext(), position + "을 " + direction + "으로 스와이프", Toast.LENGTH_SHORT).show();
+            //4가 왼쪽으로, 8이 오른쪽으로 스와이프임
+            Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+            startActivityForResult(intent, DELETE_CODE);
+
+            // 아답타에게 알린다
+            // recyclerView.getAdapter().notifyItemRemoved(position);
+        }
+    };
+
     //AddChatActivity에서 넘어온 정보를 처리하는 함수
     //intent에 bundle로 보낸 정보를 받음
     @Override
@@ -185,6 +218,24 @@ public class ChatListActivity extends AppCompatActivity {
             //dataListener3는 초대된 user 테이블에 정보 추가
             reference3.addListenerForSingleValueEvent(dataListener3);
         }
+        if(requestCode == DELETE_CODE && resultCode == RESULT_OK) {
+            int result = data.getIntExtra("delete", -1);
+            if(result == 1) {
+                //삭제하기
+                //Toast.makeText(getApplicationContext(), adapter.getRoomIdByPosition(removedPosition) + "번 방을 삭제 했어요", Toast.LENGTH_SHORT).show();
+                removedItemInDB = adapter.getRoomIdByPosition(removedPosition);
+                adapter.removeItem(removedPosition);
+                recyclerView.removeViewsInLayout(removedPosition, 1);
+                adapter.notifyItemRemoved(removedPosition);
+                //reference2.addListenerForSingleValueEvent(dataListener5);
+                reference.addListenerForSingleValueEvent(dataListener6);
+
+            } else {
+                Toast.makeText(getApplicationContext(), "취소 했어요", Toast.LENGTH_SHORT).show();
+                //삭제안함
+            }
+
+        }
     }
 
     //리사이클러뷰에 표시할 데이터 리스트 생성하기 위해 DB와 통신
@@ -209,6 +260,8 @@ public class ChatListActivity extends AppCompatActivity {
 
             // 리사이클러뷰에 adapter 지정
             recyclerView.setAdapter(adapter);
+
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
 
             //리사이클러뷰의 채팅방을 클릭했을 경우 이벤트 리스너
             //ChatRoomAdapter에 구현된 getItem 메서드 활용
@@ -343,6 +396,70 @@ public class ChatListActivity extends AppCompatActivity {
                     startActivity(chatIntent);
                 }
             });
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+
+    //채팅방을 삭제할때 DB의 Room 테이블과 통신
+    /*
+    final ValueEventListener dataListener5 = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            //num_of_rooms을 하나 줄임
+            //번호를 통째로 삭제함
+            Map<String, Object> message = (Map<String, Object>) dataSnapshot.getValue();
+            Map<String, Object> roomUpdater1 = new HashMap<>();
+
+            //방 개수 받아옴
+            roomNum = Integer.parseInt(message.get("num_of_rooms").toString());
+            roomNum --;
+            //방 개수 하나 줄여서 DB에 업로드
+            roomUpdater1.put("Room/num_of_rooms", roomNum);
+
+
+            //방 추가 및 DB에 업로드
+            Map<String, Object> roomUpdater2 = new HashMap<>();
+            roomUpdater2.put("Room/rooms/"+removedItemInDB, null);
+            reference.updateChildren(roomUpdater1);
+            reference.updateChildren(roomUpdater2);
+
+            //디버깅용 로그 출력
+            Log.d("debug", "정상적으로 방 삭제했습니다.");
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };*/
+
+    //채팅방이 삭제된 사용자의 User 테이블과 통신
+    //삭제한 사용자의 테이블에만 접근하면 됨
+    final ValueEventListener dataListener6 = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            //user/whoIs/room/size
+            Map<String, Object> userInfo2 = (Map<String, Object>) dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
+            Map<String, Object> userRoomUpdater = new HashMap<>();
+            int userRoomSize = Integer.parseInt(userInfo2.get("size").toString());
+            userRoomSize--;
+
+            String removedKey = "-1";
+            for(Object key : userInfo2.keySet()) {
+                if(userInfo2.get(key).toString().equals(removedItemInDB)) {
+                    removedKey = key.toString();
+                }
+            }
+
+            userRoomUpdater.put("user/" + restoreState("user_num") + "/room/size", userRoomSize);
+            userRoomUpdater.put("user/" + restoreState("user_num") + "/room/" + removedKey, null);
+
+            reference.updateChildren(userRoomUpdater);
         }
 
         @Override

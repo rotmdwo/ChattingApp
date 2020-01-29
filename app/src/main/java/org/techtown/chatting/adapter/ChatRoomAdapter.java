@@ -89,7 +89,13 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
         return roomNum;
     }
 
+    public String getRoomIdByPosition(int position) { return rooms.get(position).getRoomId(); }
+
     public void addItem(ChattingRoom item) {
         rooms.add(item);
+    }
+
+    public void removeItem(int position) {
+        rooms.remove(position);
     }
 }
