@@ -7,12 +7,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -23,7 +25,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.R;
+import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.chat.message;
+import org.techtown.chatting.friend.FriendListActivity;
+import org.techtown.chatting.setting.ConfigActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,11 +47,15 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
     String otherId;
     long roomNum;
 
+    ImageView person, chatRoom, randomChat, setting; // 하단바 관련 변수
+
     String TAG = "RandomChattingRoomActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_random_chatting_room);
+
+        addClickListener();
 
         //user ID
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
@@ -81,6 +90,13 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
             }
         });
 
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
     }
 
     ChildEventListener childEventListener = new ChildEventListener() {
@@ -104,6 +120,7 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
                     adapter.addItem(new randomMessage((String)message.get("id"), (String)message.get("message")), getApplicationContext());
                     adapter.notifyDataSetChanged();
                 }
+                recyclerView.scrollToPosition(adapter.getItemCount()-1);
             }
         }
 
@@ -188,13 +205,14 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             num_message = 0;
+            recyclerView.setAdapter(adapter);
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("text").getChildren()){
                 num_message ++;
                 Map<String, Object> messages = (Map<String, Object>)dataSnapshot1.getValue();
 
                 adapter.addItem(new randomMessage((String) messages.get("id"), (String)messages.get("message")), getApplicationContext());
-                recyclerView.setAdapter(adapter);
             }
+            recyclerView.scrollToPosition(adapter.getItemCount()-1);
         }
 
         @Override
@@ -202,4 +220,45 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
 
         }
     };
+
+    private void addClickListener(){
+        person = (ImageView)findViewById(R.id.person);
+        chatRoom = (ImageView)findViewById(R.id.chatRoom);
+        randomChat = (ImageView)findViewById(R.id.randomChat);
+        setting = (ImageView)findViewById(R.id.setting);
+
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent;
+                switch (view.getId()) {
+                    case R.id.person:
+                        intent = new Intent(getApplicationContext(), FriendListActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.chatRoom:
+                        intent = new Intent(getApplicationContext(), ChatListActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                    case R.id.randomChat:
+                        /*intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                        startActivity(intent);
+                        finish();*/
+                        break;
+                    case R.id.setting:
+                        intent = new Intent(getApplicationContext(), ConfigActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+                }
+            }
+        };
+
+        person.setOnClickListener(clickListener);
+        chatRoom.setOnClickListener(clickListener);
+        randomChat.setOnClickListener(clickListener);
+        setting.setOnClickListener(clickListener);
+    }
 }

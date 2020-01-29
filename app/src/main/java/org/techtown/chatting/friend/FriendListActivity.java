@@ -26,10 +26,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.AddFriend.AddFriendActivity;
 import org.techtown.chatting.AddFriend.ReceiveFriendRequestActivity;
+import org.techtown.chatting.ranChat.EnterRandomChat;
 import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
-import org.techtown.chatting.ranChat.RandomChatActivity;
+
+import org.techtown.chatting.ranChat.EnterRandomChat;
 
 import java.util.Map;
 
@@ -83,7 +85,7 @@ public class FriendListActivity extends AppCompatActivity {
                         finish();
                         break;
                     case R.id.randomChat:
-                        intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                        intent = new Intent(getApplicationContext(), EnterRandomChat.class);
                         startActivity(intent);
                         finish();
                         break;
