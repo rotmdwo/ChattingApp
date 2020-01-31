@@ -22,10 +22,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.techtown.chatting.NotificationActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
+import org.techtown.chatting.chat.swipe.ItemTouchHelperCallback;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
 import org.techtown.chatting.setting.ConfigActivity;
@@ -49,7 +49,7 @@ public class ChatListActivity extends AppCompatActivity {
 
     //채팅방 리사이클러뷰 관련 변수
     RecyclerView recyclerView; //채팅방 목록을 표시하는 리사이클러뷰
-    ChatRoomAdapter adapter = new ChatRoomAdapter(); //리사이클러뷰에 사용하는 어댑터
+    ChatRoomAdapter adapter; //리사이클러뷰에 사용하는 어댑터
 
     //하단바 관련 변수
     ImageView person, chatRoom, randomChat, setting; //하단바 이미지뷰
@@ -71,14 +71,15 @@ public class ChatListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
 
+        adapter = new ChatRoomAdapter(this);
+
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         recyclerView = findViewById(R.id.chatRoomList) ;
         recyclerView.setLayoutManager(new LinearLayoutManager(this)) ;
 
         //ItemTouchHelper로 슬라이드 구현
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(adapter));
         itemTouchHelper.attachToRecyclerView(recyclerView);
-
 
         reference.addListenerForSingleValueEvent(dataListener);         //액티비티가 create될때 DB에서 처음으로 채팅방 목록을 받아옴
 
@@ -172,7 +173,8 @@ public class ChatListActivity extends AppCompatActivity {
 
     //채팅방 슬라이드 이벤트 리스너
     //추후에 채팅방 순서 변경도 구현 예정
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    /*
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             return false;
@@ -185,6 +187,7 @@ public class ChatListActivity extends AppCompatActivity {
             startActivityForResult(intent, DELETE_CODE);                //요청코드 'DELETE_CODE'로 삭제 의사 요청
         }
     };
+    */
 
     //AddChatActivity에서 넘어온 정보를 처리하는 함수
     //intent에 bundle로 보낸 정보를 받음
@@ -224,6 +227,7 @@ public class ChatListActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(getApplicationContext(),
                         "취소 했어요", Toast.LENGTH_SHORT).show();                             //삭제안했다고 사용자에게 알림
+                reference.addListenerForSingleValueEvent(dataListener4);
             }
 
         }

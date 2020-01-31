@@ -1,38 +1,45 @@
 package org.techtown.chatting.adapter;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.techtown.chatting.chat.swipe.NotificationActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChattingRoom;
+import org.techtown.chatting.chat.swipe.CustomDialog;
+import org.techtown.chatting.chat.swipe.ItemTouchHelperListener;
+import org.techtown.chatting.chat.swipe.OnDialogListener;
 
 import java.util.ArrayList;
 
-public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHolder> {
+public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHolder> implements ItemTouchHelperListener, OnDialogListener {
     //현재는 채팅방 이름만을 저장함, 추후 수정
     private ArrayList<ChattingRoom> rooms = new ArrayList<>() ;
+    private OnItemClickListener mListener = null ;
+    Context context;
+
+    public ChatRoomAdapter(Context context){ this.context = context; }
+
+    @Override
+    public void onFinish(int position, ChattingRoom chatRoom) {
+        rooms.set(position, chatRoom);
+        notifyItemRemoved(position);
+    }
 
     public interface OnItemClickListener {
         void onItemClick(View v, int position) ;
     }
 
-    private OnItemClickListener mListener = null ;
-
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.mListener = listener ;
     }
-
-    /*
-    public ChatRoomAdapter() {
-
-    }
-    */
 
     // 아이템 뷰를 저장하는 뷰홀더 클래스.
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -57,6 +64,50 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onItemMove(int from_position, int to_position) {
+        ChattingRoom chatRoom = rooms.get(from_position);   //받아 놓기
+        rooms.remove(from_position);                        //삭제
+        rooms.add(to_position, chatRoom);                   //이동할 곳에 추가
+
+        notifyItemMoved(from_position, to_position);
+        return true;
+    }
+
+    @Override
+    public void onItemSwipe(int position) {
+        NotificationActivity notification = new NotificationActivity();
+        rooms.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onLeftClick(int position, RecyclerView.ViewHolder viewHolder) {
+        //수정 버튼 클릭시 다이얼로그 생성
+        CustomDialog dialog = new CustomDialog(context, position, rooms.get(position));
+        //화면 사이즈 구하기
+        DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        //다이얼로그 사이즈 세팅
+        WindowManager.LayoutParams wm = dialog.getWindow().getAttributes();
+        wm.copyFrom(dialog.getWindow().getAttributes());
+        wm.width = (int) (width * 0.7);
+        wm.height = height/2;
+        //다이얼로그 Listener 세팅
+        dialog.setDialogListener(this);
+
+        //다이얼로그 띄우기
+        dialog.show();
+    }
+
+    @Override
+    public void onRightClick(int position, RecyclerView.ViewHolder viewHolder) {
+        rooms.remove(position);
+        notifyItemRemoved(position);
     }
 
     // onCreateViewHolder() - 아이템 뷰를 위한 뷰홀더 객체 생성하여 리턴.
