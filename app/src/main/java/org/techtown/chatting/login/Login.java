@@ -1,8 +1,5 @@
 package org.techtown.chatting.login;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,8 +19,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.R;
+import org.techtown.chatting.friend.FriendListActivity;
 
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class Login extends AppCompatActivity {
     TextView textView,textView2;
     EditText editText, editText2;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-    String id,password,userNum;
+    String id,password,userNum,userName;
     Boolean isLoginChecked = false;
 
     @Override
@@ -79,11 +78,13 @@ public class Login extends AppCompatActivity {
 
                     //아이디, 비밀번호 확인됨
                     isLoginChecked = true;
+
+                    userName = (String) message.get("name");
                     break;
                 }
             }
             if(isLoginChecked){
-                saveState(id, userNum);  //로그인 성공, 로그인 된 아이디 저장
+                saveState(id, userNum,userName);  //로그인 성공, 로그인 된 아이디 저장
                 Intent intent = new Intent(getApplicationContext(), FriendListActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -99,11 +100,12 @@ public class Login extends AppCompatActivity {
         }
     };
 
-    public void saveState(String id, String user_num){
+    public void saveState(String id, String user_num,String userName){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("id",id);
         editor.putString("user_num", user_num);
+        editor.putString("user_name",userName);
         editor.commit();
     }
 }

@@ -163,8 +163,9 @@ public class AddFriendActivity extends AppCompatActivity {
                 Map<String, Object> postValues = new HashMap<>();
                 user_num++;
                 childUpdates1.put("FriendRequest/num",user_num);
-                postValues.put("requester",restoreState());
+                postValues.put("requester_id",restoreState());
                 postValues.put("toWhom",id);
+                postValues.put("requester_name",restoreState2());
                 childUpdates2.put("FriendRequest/"+user_num,postValues);
                 reference.updateChildren(childUpdates1);
                 reference.updateChildren(childUpdates2);
@@ -188,5 +189,10 @@ public class AddFriendActivity extends AppCompatActivity {
     protected String restoreState(){
         SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
         return pref.getString("id","");
+    }
+
+    protected String restoreState2(){
+        SharedPreferences pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        return pref.getString("user_name","");
     }
 }

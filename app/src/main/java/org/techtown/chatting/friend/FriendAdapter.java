@@ -1,22 +1,28 @@
 package org.techtown.chatting.friend;
 
-import android.graphics.Color;
-import android.util.SparseBooleanArray;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import org.techtown.chatting.R;
-import org.techtown.chatting.adapter.ChatRoomAdapter;
 
 import java.util.ArrayList;
 
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder>{
     ArrayList<Friend> items = new ArrayList<Friend>();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     public interface OnItemClickListener {
         void onItemClick(View v, int position) ;
@@ -50,6 +56,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         TextView textView, textView2;
+        ImageView imageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,11 +77,23 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
             textView= itemView.findViewById(R.id.textView);
             textView2 = itemView.findViewById(R.id.textView2);
+            imageView = itemView.findViewById(R.id.imageView);
         }
 
-        public void setItem(Friend book){
-            textView.setText(book.getName());
-            textView2.setText(book.getState_message());
+        public void setItem(Friend item){
+            textView.setText(item.getName());
+            textView2.setText(item.getState_message());
+            String file_path = "profile_picture/profile_picture_"+item.getId();
+            StorageReference ref = storage.getReference().child(file_path);
+            ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if(task.isSuccessful()){
+
+                        Glide.with((FriendListActivity)FriendListActivity.mContext).load(task.getResult()).into(imageView);
+                    }
+                }
+            });
         }
     }
 

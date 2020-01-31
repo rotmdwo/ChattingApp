@@ -57,7 +57,7 @@ public class ReceiveFriendRequestActivity extends AppCompatActivity {
             for(int i=1;i<=user_num;i++){
                 Map<String, Object> message2 = (Map<String, Object>) message.get(Integer.toString(i));
                 if(((String)message2.get("toWhom")).equals(restoreState())){
-                    adapter.addItem(new Requester((String)message2.get("requester")),getApplicationContext());
+                    adapter.addItem(new Requester((String)message2.get("requester_id"),(String)message2.get("requester_name")),getApplicationContext());
                 }
             }
 
