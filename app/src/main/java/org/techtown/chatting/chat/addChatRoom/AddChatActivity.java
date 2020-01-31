@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -21,7 +20,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.techtown.chatting.R;
-import org.techtown.chatting.chat.ChatListActivity;
 import org.techtown.chatting.friend.Friend;
 import org.techtown.chatting.friend.FriendAdapterForAddChatRoom;
 
@@ -88,7 +86,8 @@ public class AddChatActivity extends AppCompatActivity {
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                     int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
                     for(int i=1;i<=num;i++){
-                        list.add(new Friend((String)message.get(Integer.toString(i)),"상태메세지"));
+                        Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(i));
+                        list.add(new Friend((String)message1.get("id"),(String)message1.get("name"),"상태메세지"));
                         //adapter.addItem();
                     }
                 }

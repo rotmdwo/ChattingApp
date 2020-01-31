@@ -33,7 +33,7 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
     String deleteRequester, deleteMe;
     int deletePosition;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("friend");  // 리퀘스트 수락
-    String acceptRequester, acceptMe;
+    String acceptRequester, acceptMe,acceptRequesterName;
     int acceptPosition;
 
     public interface OnItemClickListener {
@@ -67,7 +67,7 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        TextView textView;
+        TextView textView,textView2;
         ImageButton button;
         ImageButton button2;
 
@@ -77,8 +77,9 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {  // 리퀘스트 수락
-                    acceptRequester = textView.getText().toString();
+                    acceptRequester = textView2.getText().toString();
                     acceptMe = restoreState();
+                    acceptRequesterName = textView.getText().toString();
                     acceptPosition = getAdapterPosition();
                     reference2.addListenerForSingleValueEvent(dataListener3);
                     reference.addListenerForSingleValueEvent(dataListener);
@@ -89,7 +90,7 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
             button2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {  //리퀘스트 삭제
-                    deleteRequester = textView.getText().toString();
+                    deleteRequester = textView2.getText().toString();
                     deleteMe = restoreState();
                     deletePosition = getAdapterPosition();
                     reference2.addListenerForSingleValueEvent(dataListener2);
@@ -111,10 +112,12 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
             });
 
             textView= itemView.findViewById(R.id.textView);
+            textView2 = itemView.findViewById(R.id.textView2);
         }
 
         public void setItem(Requester requester){
-            textView.setText(requester.getId());
+            textView.setText(requester.getName());
+            textView2.setText(requester.getId());
         }
     }
 
@@ -144,10 +147,11 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
 
             for(int i=1;i<=user_num;i++){
                 Map<String, Object> message2 = (Map<String, Object>) message.get(Integer.toString(i));
-                if(((String)message2.get("toWhom")).equals(deleteMe) && ((String)message2.get("requester")).equals(deleteRequester)){
+                if(((String)message2.get("toWhom")).equals(deleteMe) && ((String)message2.get("requester_id")).equals(deleteRequester)){
                     Map<String, Object> childUpdates1 = new HashMap<>();
                     Map<String, Object> postValues = new HashMap<>();
-                    postValues.put("requester","deleted");
+                    postValues.put("requester_id","deleted");
+                    postValues.put("requested_name","deleted");
                     postValues.put("toWhom","deleted");
                     childUpdates1.put(Integer.toString(i),postValues);
                     reference2.updateChildren(childUpdates1);
@@ -181,7 +185,10 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
                     reference.updateChildren(childUpdates1);
 
                     Map<String, Object> childUpdates2 = new HashMap<>();
-                    childUpdates2.put(acceptMe + "/" + num, acceptRequester);
+                    Map<String, Object> postValues = new HashMap<>();
+                    postValues.put("id",acceptRequester);
+                    postValues.put("name",acceptRequesterName);
+                    childUpdates2.put(acceptMe + "/" + num, postValues);
                     reference.updateChildren(childUpdates2);
 
                     meAdded = true;
@@ -196,7 +203,10 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
                     reference.updateChildren(childUpdates1);
 
                     Map<String, Object> childUpdates2 = new HashMap<>();
-                    childUpdates2.put(acceptRequester + "/" + num, acceptMe);
+                    Map<String, Object> postValues = new HashMap<>();
+                    postValues.put("id",acceptMe);
+                    postValues.put("name",restoreState2());
+                    childUpdates2.put(acceptRequester + "/" + num, postValues);
                     reference.updateChildren(childUpdates2);
 
                     requesterAdded = true;
@@ -210,7 +220,10 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
                 reference.updateChildren(childUpdates1);
 
                 Map<String, Object> childUpdates2 = new HashMap<>();
-                childUpdates2.put(acceptMe + "/" + num, acceptRequester);
+                Map<String, Object> postValues = new HashMap<>();
+                postValues.put("id",acceptRequester);
+                postValues.put("name",acceptRequesterName);
+                childUpdates2.put(acceptMe + "/" + num, postValues);
                 reference.updateChildren(childUpdates2);
             }
 
@@ -221,12 +234,15 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
                 reference.updateChildren(childUpdates1);
 
                 Map<String, Object> childUpdates2 = new HashMap<>();
-                childUpdates2.put(acceptRequester + "/" + num, acceptMe);
+                Map<String, Object> postValues = new HashMap<>();
+                postValues.put("id",acceptMe);
+                postValues.put("name",restoreState2());
+                childUpdates2.put(acceptRequester + "/" + num, postValues);
                 reference.updateChildren(childUpdates2);
             }
 
             // 친구 맺은 후 친구목록 바로 업데이트
-            ((FriendListActivity)FriendListActivity.mContext).adapter.addItem(new Friend(acceptRequester,"상태메세지"));
+            ((FriendListActivity)FriendListActivity.mContext).adapter.addItem(new Friend(acceptRequester,acceptRequesterName,"상태메세지"));
             ((FriendListActivity)FriendListActivity.mContext).recyclerView.setAdapter(((FriendListActivity)FriendListActivity.mContext).adapter);
         }
 
@@ -236,7 +252,7 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
         }
     };
 
-    ValueEventListener dataListener3 = new ValueEventListener() {  //리퀘스트 삭제
+    ValueEventListener dataListener3 = new ValueEventListener() {  //리퀘스트 수락시 뷰에서 리퀘스트 삭제
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -245,11 +261,13 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
 
             for(int i=1;i<=user_num;i++){
                 Map<String, Object> message2 = (Map<String, Object>) message.get(Integer.toString(i));
-                if(((String)message2.get("toWhom")).equals(acceptMe) && ((String)message2.get("requester")).equals(acceptRequester)){
+                if(((String)message2.get("toWhom")).equals(acceptMe) && ((String)message2.get("requester_id")).equals(acceptRequester)){
                     Map<String, Object> childUpdates1 = new HashMap<>();
                     Map<String, Object> postValues = new HashMap<>();
-                    postValues.put("requester","accepted");
+                    postValues.put("requester_name","accepted");
                     postValues.put("toWhom","accepted");
+                    postValues.put("requester_id","accepted");
+
                     childUpdates1.put(Integer.toString(i),postValues);
                     reference2.updateChildren(childUpdates1);
 
@@ -271,5 +289,10 @@ public class RequesterAdapter extends RecyclerView.Adapter<RequesterAdapter.View
     protected String restoreState(){
         SharedPreferences pref = mContext.getSharedPreferences("pref", Activity.MODE_PRIVATE);
         return pref.getString("id","");
+    }
+
+    protected String restoreState2(){
+        SharedPreferences pref = mContext.getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        return pref.getString("user_name","");
     }
 }

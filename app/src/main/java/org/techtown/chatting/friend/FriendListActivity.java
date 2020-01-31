@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,20 +19,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.techtown.chatting.AddFriend.AddFriendActivity;
 import org.techtown.chatting.AddFriend.ReceiveFriendRequestActivity;
-import org.techtown.chatting.ranChat.EnterRandomChat;
-import org.techtown.chatting.setting.ConfigActivity;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChatListActivity;
-
 import org.techtown.chatting.ranChat.EnterRandomChat;
+import org.techtown.chatting.setting.ConfigActivity;
 
 import java.util.Map;
 
@@ -47,6 +51,8 @@ public class FriendListActivity extends AppCompatActivity {
     Boolean gotFriendRequest = false;
     ImageButton button2;
     public static Context mContext;
+    ImageView imageView;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +69,18 @@ public class FriendListActivity extends AppCompatActivity {
 
         reference.addListenerForSingleValueEvent(dataListener);
         reference2.addListenerForSingleValueEvent(dataListener2);
+
+        imageView = findViewById(R.id.imageView); // 내 프로필 사진
+        String file_path = "profile_picture/profile_picture_"+restoreState();
+        StorageReference ref = storage.getReference().child(file_path);
+        ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if(task.isSuccessful()){
+                    Glide.with(getApplicationContext()).load(task.getResult()).into(imageView);
+                }
+            }
+        });
 
         person = (ImageView)findViewById(R.id.person);
         chatRoom = (ImageView)findViewById(R.id.chatRoom);
@@ -125,7 +143,7 @@ public class FriendListActivity extends AppCompatActivity {
 
     ValueEventListener dataListener = new ValueEventListener() {
         @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {  // 내 정보
 
             for(DataSnapshot dataSnapshot2 : dataSnapshot.child("user").getChildren()){
                 Map<String, Object> message2 = (Map<String, Object>) dataSnapshot2.getValue();
@@ -147,7 +165,8 @@ public class FriendListActivity extends AppCompatActivity {
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                     int num = Integer.parseInt(message.get("num").toString());  //firebase에서 int 가져오는 방법
                     for(int i=1;i<=num;i++){
-                        adapter.addItem(new Friend((String)message.get(Integer.toString(i)),"상태메세지"));
+                        Map<String, Object> message1 = (Map<String, Object>) message.get(Integer.toString(i));
+                        adapter.addItem(new Friend((String)message1.get("id"),(String)message1.get("name"),"상태메세지"));
                     }
                 }
             }

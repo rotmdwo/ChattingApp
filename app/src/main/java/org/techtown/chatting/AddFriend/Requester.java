@@ -2,9 +2,11 @@ package org.techtown.chatting.AddFriend;
 
 public class Requester {
     String id;
+    String name;
 
-    public Requester(String id) {
+    public Requester(String id,String name) {
         this.id = id;
+        this.name = name;
     }
 
     public String getId() {
@@ -13,5 +15,13 @@ public class Requester {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

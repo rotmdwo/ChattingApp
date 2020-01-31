@@ -1,10 +1,12 @@
 package org.techtown.chatting.friend;
 
 public class Friend {
+    String id;
     String name;
     String state_message;
 
-    public Friend(String name, String state_message) {
+    public Friend(String id,String name, String state_message) {
+        this.id = id;
         this.name = name;
         this.state_message = state_message;
     }
@@ -25,4 +27,11 @@ public class Friend {
         this.state_message = state_message;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
