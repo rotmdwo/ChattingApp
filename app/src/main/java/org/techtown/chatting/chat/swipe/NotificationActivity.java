@@ -1,4 +1,4 @@
-package org.techtown.chatting;
+package org.techtown.chatting.chat.swipe;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
+
+import org.techtown.chatting.R;
 
 public class NotificationActivity extends AppCompatActivity {
     Button exit, cancle;
