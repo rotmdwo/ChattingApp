@@ -54,4 +54,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.github.pedroSG94:AutoPermissions:1.0.3'
     implementation 'com.android.support:exifinterface:28.1.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }

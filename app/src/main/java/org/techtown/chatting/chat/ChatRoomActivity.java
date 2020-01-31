@@ -1,6 +1,7 @@
 package org.techtown.chatting.chat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -41,11 +42,14 @@ public class ChatRoomActivity extends AppCompatActivity {
     private Parcelable recyclerViewState;  //자동 스크롤 방지
     Boolean sentByMe = false;
     long scrollLocation;
+    public static Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+
+        mContext = this;
 
         textView = findViewById(R.id.textView);
         textView2 = findViewById(R.id.textView2);
