@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,9 +44,16 @@ public class EnterRandomChat extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("randomRoom").getChildren()){
                 Map<String, Object> ranroomData = (Map<String, Object>)dataSnapshot1.getValue();
-                if(userId.equals(ranroomData.get("id1")) || userId.equals(ranroomData.get("id2"))){
-                    isMatchedBoolean = true;
-                    break;
+                if(ranroomData.size() == 4 || ranroomData.size() == 5){
+                    if(userId.equals(ranroomData.get("id1")) || userId.equals(ranroomData.get("id2"))){
+                        isMatchedBoolean = true;
+                        break;
+                    }
+                } else{
+                    if(userId.equals(ranroomData.get("id1"))){
+                        isMatchedBoolean = true;
+                        break;
+                    }
                 }
             }
             if(isMatchedBoolean){

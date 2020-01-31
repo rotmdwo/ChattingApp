@@ -57,6 +57,8 @@ public class RandomChatActivity extends AppCompatActivity {
     CheckBox campus1, campus2, male1, male2;
     Button startBtn;
 
+    long time;
+
     long waitingNum = 0;
     long roomNum = 0;
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
@@ -218,6 +220,8 @@ public class RandomChatActivity extends AppCompatActivity {
                 pb.setVisibility(View.VISIBLE);
                 TextView pbtext = (TextView)findViewById(R.id.progress_text);
                 pbtext.setVisibility(View.VISIBLE);
+
+                reference.addValueEventListener(waitingMatching);
             }
         }
 
@@ -277,6 +281,7 @@ public class RandomChatActivity extends AppCompatActivity {
             if(!isMatched){
                 onWait();
                 afterOnWait();
+                reference.addValueEventListener(waitingMatching);
             }
         }
 
@@ -286,7 +291,29 @@ public class RandomChatActivity extends AppCompatActivity {
         }
     };
 
-    private void addClickListener(){
+    // 매칭 대기
+    ValueEventListener waitingMatching = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("randomRoom").getChildren()){
+                Map<String, Object> ranroomData = (Map<String, Object>)dataSnapshot1.getValue();
+                if(userId.equals(ranroomData.get("id1")) || userId.equals(ranroomData.get("id2"))){
+                    Toast.makeText(getApplicationContext(), "매칭되었습니다.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), RandomChattingRoomActivity.class);
+                    startActivity(intent);
+                    finish();
+                    reference.removeEventListener(this);
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+   private void addClickListener(){
         person = (ImageView)findViewById(R.id.person);
         chatRoom = (ImageView)findViewById(R.id.chatRoom);
         randomChat = (ImageView)findViewById(R.id.randomChat);
@@ -298,11 +325,13 @@ public class RandomChatActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
+                        reference.removeEventListener(waitingMatching);
                         intent = new Intent(getApplicationContext(), FriendListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
                     case R.id.chatRoom:
+                        reference.removeEventListener(waitingMatching);
                         intent = new Intent(getApplicationContext(), ChatListActivity.class);
                         startActivity(intent);
                         finish();
@@ -313,6 +342,7 @@ public class RandomChatActivity extends AppCompatActivity {
                         finish();*/
                         break;
                     case R.id.setting:
+                        reference.removeEventListener(waitingMatching);
                         intent = new Intent(getApplicationContext(), ConfigActivity.class);
                         startActivity(intent);
                         finish();
@@ -325,6 +355,18 @@ public class RandomChatActivity extends AppCompatActivity {
         chatRoom.setOnClickListener(clickListener);
         randomChat.setOnClickListener(clickListener);
         setting.setOnClickListener(clickListener);
+   }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
+        }
     }
+
 }
 

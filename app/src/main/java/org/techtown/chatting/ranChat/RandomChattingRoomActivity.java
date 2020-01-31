@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -42,14 +45,19 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
     private DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference roomReference;
     int num_message = 0;
+    long time;
     String userId;
     String roomUserId;
     String otherId;
+    String otherRId;
+    String roomName;
     long roomNum;
+
+    Boolean noOther = false;
 
     ImageView person, chatRoom, randomChat, setting; // 하단바 관련 변수
 
-    String TAG = "RandomChattingRoomActivity";
+    String TAG = "RandomChattingRoomActivityTAG";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +70,7 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         userId = pref.getString("id","");
         //set chatting room name
         chatName = findViewById(R.id.chatName);
+        editText = findViewById(R.id.sendText);
 
         //find room number
         reference.addListenerForSingleValueEvent(findRoom);
@@ -74,64 +83,100 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         sendBtn = findViewById(R.id.sendBtn);
 
         //set sending message
-        editText = findViewById(R.id.sendText);
+
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = editText.getText().toString();
-                if(message == "") return;
-                editText.setText("");
-                Map<String, Object> childUpdates = new HashMap<>();
-                Map<String, Object> postValues = new HashMap<>();
-                postValues.put("message",message);
-                postValues.put("id", userId);
-                childUpdates.put("randomRoom/"+roomNum + "/text/"+(num_message+1), postValues);
-                reference.updateChildren(childUpdates);
+                if(noOther){
+                    Toast.makeText(getApplicationContext(), "메시지를 보내실 수 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    String message = editText.getText().toString();
+                    if(message == "") return;
+                    editText.setText("");
+                    Map<String, Object> childUpdates = new HashMap<>();
+                    Map<String, Object> postValues = new HashMap<>();
+                    postValues.put("message",message);
+                    postValues.put("id", userId);
+                    childUpdates.put("randomRoom/"+roomNum + "/text/"+(num_message+1), postValues);
+                    reference.updateChildren(childUpdates);
+                }
             }
         });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(RandomChattingRoomActivity.this);
+                builder.setTitle("채팅방을 나가시겠습니까?");
+                builder.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(noOther){
+                            reference.child("randomRoom").child(roomName).removeValue();
+                            Intent intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                            startActivity(intent);
+                            roomReference.removeEventListener(eventListener);
+                            finish();
+                            return;
+                        }
+                        if(roomUserId.equals("id1")){
+                            reference.child("randomRoom").child(roomName).child("id1").setValue(otherRId);
+                            reference.child("randomRoom").child(roomName).child("randId1").setValue(otherId);
+                            reference.child("randomRoom").child(roomName).child("id2").removeValue();
+                            reference.child("randomRoom").child(roomName).child("randId2").removeValue();
 
+                            Intent intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                            startActivity(intent);
+                            roomReference.removeEventListener(eventListener);
+                            finish();
+                            return;
+                        }
+                        else{
+                            reference.child("randomRoom").child(roomName).child("id2").removeValue();
+                            reference.child("randomRoom").child(roomName).child("randId2").removeValue();
+                            Intent intent = new Intent(getApplicationContext(), RandomChatActivity.class);
+                            startActivity(intent);
+                            roomReference.removeEventListener(eventListener);
+                            finish();
+                            return;
+                        }
+                    }
+                });
+                builder.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
         });
 
     }
 
-    ChildEventListener childEventListener = new ChildEventListener() {
+    ValueEventListener eventListener = new ValueEventListener() {
         @Override
-        public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            Log.d(TAG, "child change");
-            Log.d(TAG, dataSnapshot.getKey());
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                Log.d(TAG, dataSnapshot1.getKey());
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            Map<String, Object> list = (Map<String, Object>)dataSnapshot.getValue();
+            if(list.size() <= 3){
+                noOther = true;
+                Toast.makeText(getApplicationContext(), "상대방이 나갔습니다.", Toast.LENGTH_SHORT).show();
+                chatName.setText("상대방이 나갔습니다.");
+                editText.setHint("메시지를 보낼 수 없는 채팅방입니다.");
+                editText.setEnabled(false);
+                return;
+            }
+            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("text").getChildren()){
                 if(Long.parseLong(dataSnapshot1.getKey()) == num_message+1){
                     Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
                     num_message ++;
-                    Log.d(TAG, Integer.toString(num_message));
-                    Log.d(TAG, "id: "+(String)message.get("id"));
-                    Log.d(TAG,"message: "+ (String)message.get("message"));
                     adapter.addItem(new randomMessage((String)message.get("id"), (String)message.get("message")), getApplicationContext());
                     adapter.notifyDataSetChanged();
                 }
                 recyclerView.scrollToPosition(adapter.getItemCount()-1);
             }
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
         }
 
         @Override
@@ -146,57 +191,53 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             for(DataSnapshot dataSnapshot1 : dataSnapshot.child("randomRoom").getChildren()){
                 Map<String, Object> roomData = (Map<String, Object>) dataSnapshot1.getValue();
-                if(userId.equals((String)roomData.get("id1"))){
-                    roomNum = Long.parseLong(dataSnapshot1.getKey());
-                    roomUserId = "Id1";
-                    otherId = (String)roomData.get("randId2");
-                    break;
+                Log.d(TAG, Integer.toString(roomData.size()));
+                if(roomData.size() == 4 || roomData.size() == 5){
+                    if(userId.equals((String)roomData.get("id1"))){
+                        roomNum = Long.parseLong(dataSnapshot1.getKey());
+                        roomUserId = "id1";
+                        otherRId = (String)roomData.get("id2");
+                        otherId = (String)roomData.get("randId2");
+                        break;
+                    }
+                    else if(userId.equals((String)roomData.get("id2"))){
+                        roomNum = Long.parseLong(dataSnapshot1.getKey());
+                        roomUserId = "id2";
+                        otherRId = (String)roomData.get("id1");
+                        otherId = (String)roomData.get("randId1");
+                        break;
+                    }
                 }
-                else if(userId.equals((String)roomData.get("id2"))){
-                    roomNum = Long.parseLong(dataSnapshot1.getKey());
-                    roomUserId = "Id2";
-                    otherId = (String)roomData.get("randId1");
-                    break;
+                else{
+                    if(userId.equals((String)roomData.get("id1"))){
+                        roomNum = Long.parseLong(dataSnapshot1.getKey());
+                        roomUserId = "id1";
+                        noOther = true;
+                        break;
+                    }
                 }
-            }
-            roomReference = FirebaseDatabase.getInstance().getReference().child("randomRoom").child(Long.toString(roomNum));
 
-            for(DataSnapshot dataSnapshot2 : dataSnapshot.child("randomRoom").child(Long.toString(roomNum)).child("chat").getChildren()){
+            }
+            roomName = Long.toString(roomNum);
+            roomReference = FirebaseDatabase.getInstance().getReference().child("randomRoom").child(roomName);
+
+            for(DataSnapshot dataSnapshot2 : dataSnapshot.child("randomRoom").child(Long.toString(roomNum)).child("text").getChildren()){
                 num_message ++;
             }
-            roomReference.addChildEventListener(childEventListener);
             roomReference.addListenerForSingleValueEvent(chatList);
-//            roomReference.addChildEventListener(childEventListener);
+            roomReference.addValueEventListener(eventListener);
 
-            chatName.setText(otherId + "와의 채팅방");
-        }
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
-    };
-
-    // add new Chat
-    ValueEventListener newChat = new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            for(DataSnapshot dataSnapshot1 : dataSnapshot.child("text").getChildren()){
-                if(Long.parseLong(dataSnapshot1.getKey()) == num_message+1){
-                    Map<String, Object> message = (Map<String, Object>) dataSnapshot1.getValue();
-                    num_message ++;
-                    Log.d(TAG, Integer.toString(num_message));
-                    Log.d(TAG, "id: "+(String)message.get("id"));
-                    Log.d(TAG,"message: "+ (String)message.get("message"));
-                    adapter.addItem(new randomMessage((String)message.get("id"), (String)message.get("message")), getApplicationContext());
-                    adapter.notifyDataSetChanged();
-                }
+            if(noOther){
+                chatName.setText("상대방이 나갔습니다.");
+                editText.setHint("메시지를 보낼 수 없는 채팅방입니다.");
+                editText.setEnabled(false);
+            } else{
+                chatName.setText(otherId + "와의 채팅방");
             }
         }
 
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
-
         }
     };
 
@@ -233,11 +274,13 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
                 Intent intent;
                 switch (view.getId()) {
                     case R.id.person:
+                        roomReference.removeEventListener(eventListener);
                         intent = new Intent(getApplicationContext(), FriendListActivity.class);
                         startActivity(intent);
                         finish();
                         break;
                     case R.id.chatRoom:
+                        roomReference.removeEventListener(eventListener);
                         intent = new Intent(getApplicationContext(), ChatListActivity.class);
                         startActivity(intent);
                         finish();
@@ -248,6 +291,7 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
                         finish();*/
                         break;
                     case R.id.setting:
+                        roomReference.removeEventListener(eventListener);
                         intent = new Intent(getApplicationContext(), ConfigActivity.class);
                         startActivity(intent);
                         finish();
@@ -260,5 +304,16 @@ public class RandomChattingRoomActivity extends AppCompatActivity {
         chatRoom.setOnClickListener(clickListener);
         randomChat.setOnClickListener(clickListener);
         setting.setOnClickListener(clickListener);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis()-time>=2000) {
+            time = System.currentTimeMillis();
+            Toast.makeText(getApplicationContext(), "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else if(System.currentTimeMillis()-time < 2000){
+            finish();
+        }
     }
 }
