@@ -3,7 +3,8 @@
     package="org.techtown.chatting">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".NotificationActivity"></activity>
+        <activity android:name=".setting.ProfilePictureChangeActivity"></activity>
+        <activity android:name=".NotificationActivity" />
         <activity android:name=".ranChat.RandomChattingRoomActivity" />
         <activity android:name=".AddFriend.ReceiveFriendRequestActivity" />
         <activity android:name=".chat.addChatRoom.AddChatActivity" />
@@ -22,7 +24,7 @@
         <activity android:name=".friend.FriendListActivity" />
         <activity android:name=".AddFriend.AddFriendActivity" />
         <activity android:name=".chat.ChatListActivity" />
-        <activity android:name=".ranChat.EnterRandomChat"/>
+        <activity android:name=".ranChat.EnterRandomChat" />
         <activity android:name=".login.SignUpActivity" />
         <activity android:name=".ranChat.RandomChatActivity" />
         <activity android:name=".login.Login" />

@@ -1,13 +1,13 @@
 package org.techtown.chatting.setting;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.techtown.chatting.R;
 
@@ -32,6 +32,10 @@ public class ProfileManagement extends AppCompatActivity {
 
                 if(item.equals("상태메세지 변경")) {
                     Intent intent = new Intent(getApplicationContext(), StateMessageChange.class);
+                    startActivity(intent);
+                }
+                if(item.equals("프로필사진 변경")) {
+                    Intent intent = new Intent(getApplicationContext(), ProfilePictureChangeActivity.class);
                     startActivity(intent);
                 }
             }
