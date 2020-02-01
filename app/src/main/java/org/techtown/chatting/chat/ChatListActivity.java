@@ -25,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.techtown.chatting.R;
 import org.techtown.chatting.adapter.ChatRoomAdapter;
 import org.techtown.chatting.chat.addChatRoom.AddChatActivity;
+import org.techtown.chatting.chat.swipe.ItemDeleted;
 import org.techtown.chatting.chat.swipe.ItemTouchHelperCallback;
 import org.techtown.chatting.friend.FriendListActivity;
 import org.techtown.chatting.ranChat.RandomChatActivity;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatListActivity extends AppCompatActivity {
+public class ChatListActivity extends AppCompatActivity implements ItemDeleted {
     ArrayList<String> addRoomUserList = new ArrayList<>(); //새로 추가한 방의 멤버들 ID
 
     //데이터베이스 관련 변수
@@ -71,11 +72,13 @@ public class ChatListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
 
-        adapter = new ChatRoomAdapter(this);
+        adapter = new ChatRoomAdapter(this, this);
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         recyclerView = findViewById(R.id.chatRoomList) ;
         recyclerView.setLayoutManager(new LinearLayoutManager(this)) ;
+        // 리사이클러뷰에 adapter 지정
+        recyclerView.setAdapter(adapter);
 
         //ItemTouchHelper로 슬라이드 구현
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(adapter));
@@ -183,7 +186,7 @@ public class ChatListActivity extends AppCompatActivity {
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             removedPosition = viewHolder.getAdapterPosition();          // 삭제되는 아이템의 포지션을 가져온다
-            Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+            Intent intent = new Intent(getApplicationContext(), DeletionDialog.class);
             startActivityForResult(intent, DELETE_CODE);                //요청코드 'DELETE_CODE'로 삭제 의사 요청
         }
     };
@@ -220,7 +223,7 @@ public class ChatListActivity extends AppCompatActivity {
             if(result == 1) {
                 Toast.makeText(getApplicationContext(),
                         "삭제 했어요", Toast.LENGTH_SHORT).show();                             //삭제했다고 사용자에게 알림
-                removedItemInDB = adapter.getRoomIdByPosition(removedPosition);
+                //removedItemInDB = adapter.getRoomIdByPosition(removedPosition);
                 adapter.removeItem(removedPosition);                                                //어댑터에서 아이템 삭제
                 adapter.notifyItemRemoved(removedPosition);                                         //어댑터에 삭제되었음을 알림 (굳이 해야되나?)
                 reference.addListenerForSingleValueEvent(dataListener6);                            //삭제한 사람의 DB에서만 채팅방 목록 삭제
@@ -374,6 +377,7 @@ public class ChatListActivity extends AppCompatActivity {
                     break;
                 }
             }
+
             // 리사이클러뷰에 adapter 지정
             recyclerView.setAdapter(adapter);
 
@@ -436,7 +440,6 @@ public class ChatListActivity extends AppCompatActivity {
     final ValueEventListener dataListener6 = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            //user/whoIs/room/size
             Map<String, Object> userInfo2 = (Map<String, Object>) dataSnapshot.child("user").child(restoreState("user_num")).child("room").getValue();
             Map<String, Object> userRoomUpdater = new HashMap<>();
             int userRoomSize = Integer.parseInt(userInfo2.get("size").toString());
@@ -460,6 +463,7 @@ public class ChatListActivity extends AppCompatActivity {
 
         }
     };
+
 
     //입력 인자에 따라 유저 id 혹은 유저 고유 번호를 반환함
     protected String restoreState(String choice){
@@ -487,5 +491,11 @@ public class ChatListActivity extends AppCompatActivity {
         else if(System.currentTimeMillis()-time < 2000){
             finish();
         }
+    }
+
+    @Override
+    public void itemRemoved(String position) {
+        removedItemInDB = position;
+        reference.addListenerForSingleValueEvent(dataListener6);
     }
 }

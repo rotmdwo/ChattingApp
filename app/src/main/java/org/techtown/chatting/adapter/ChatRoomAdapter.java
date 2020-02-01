@@ -7,30 +7,56 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.techtown.chatting.chat.swipe.NotificationActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.techtown.chatting.chat.ChatListActivity;
+import org.techtown.chatting.chat.swipe.DeletionDialog;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChattingRoom;
-import org.techtown.chatting.chat.swipe.CustomDialog;
+import org.techtown.chatting.chat.swipe.ItemDeleted;
+import org.techtown.chatting.chat.swipe.ModificationDialog;
 import org.techtown.chatting.chat.swipe.ItemTouchHelperListener;
 import org.techtown.chatting.chat.swipe.OnDialogListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHolder> implements ItemTouchHelperListener, OnDialogListener {
+public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHolder> implements ItemTouchHelperListener, OnDialogListener, ItemDeleted {
     //현재는 채팅방 이름만을 저장함, 추후 수정
+    private ItemDeleted mDeleted;
     private ArrayList<ChattingRoom> rooms = new ArrayList<>() ;
     private OnItemClickListener mListener = null ;
     Context context;
 
-    public ChatRoomAdapter(Context context){ this.context = context; }
+    public ChatRoomAdapter(Context context, ItemDeleted itemDeleted){ this.context = context; this.mDeleted = itemDeleted;}
 
     @Override
     public void onFinish(int position, ChattingRoom chatRoom) {
         rooms.set(position, chatRoom);
         notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onDeleted(int position) {
+        String removed = this.getRoomIdByPosition(position);
+        rooms.remove(removed);
+        notifyItemRemoved(position);
+        mDeleted.itemRemoved(removed);
+    }
+
+    @Override
+    public void itemRemoved(String position) {
+
     }
 
     public interface OnItemClickListener {
@@ -77,16 +103,12 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     }
 
     @Override
-    public void onItemSwipe(int position) {
-        NotificationActivity notification = new NotificationActivity();
-        rooms.remove(position);
-        notifyItemRemoved(position);
-    }
+    public void onItemSwipe(int position) { }
 
     @Override
     public void onLeftClick(int position, RecyclerView.ViewHolder viewHolder) {
         //수정 버튼 클릭시 다이얼로그 생성
-        CustomDialog dialog = new CustomDialog(context, position, rooms.get(position));
+        ModificationDialog dialog = new ModificationDialog(context, position, rooms.get(position));
         //화면 사이즈 구하기
         DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
@@ -106,8 +128,21 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
 
     @Override
     public void onRightClick(int position, RecyclerView.ViewHolder viewHolder) {
-        rooms.remove(position);
-        notifyItemRemoved(position);
+        DeletionDialog notification = new DeletionDialog(context, position, rooms.get(position));
+        DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        //다이얼로그 사이즈 세팅
+        WindowManager.LayoutParams wm = notification.getWindow().getAttributes();
+        wm.copyFrom(notification.getWindow().getAttributes());
+        wm.width = (int) (width * 0.7);
+        wm.height = height/2;
+        //다이얼로그 Listener 세팅
+        notification.setDialogListener(this);
+
+        //다이얼로그 띄우기
+        notification.show();
     }
 
     // onCreateViewHolder() - 아이템 뷰를 위한 뷰홀더 객체 생성하여 리턴.
@@ -149,4 +184,5 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     public void removeItem(int position) {
         rooms.remove(position);
     }
+
 }

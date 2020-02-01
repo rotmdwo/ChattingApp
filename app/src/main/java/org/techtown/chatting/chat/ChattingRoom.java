@@ -18,5 +18,5 @@ public class ChattingRoom {
 
     public void setRoomId(String roomId) { this.roomId = roomId; }
 
-    public String getRoomId() { return roomId; }
+    public String getRoomId() { return this.roomId; }
 }

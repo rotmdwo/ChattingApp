@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#3D3A3A"
     android:orientation="vertical">
 
     <TextView
@@ -58,9 +57,9 @@
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:padding="10dp"
-            android:textColor="#FFFFFF"
             android:text="취소"
-            android:textSize="25sp"/>
+            android:textColor="#FFFFFF"
+            android:textSize="25sp" />
     </LinearLayout>
 
 </LinearLayout>

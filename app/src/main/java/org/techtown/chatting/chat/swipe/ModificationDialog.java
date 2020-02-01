@@ -12,20 +12,21 @@ import android.widget.EditText;
 import org.techtown.chatting.R;
 import org.techtown.chatting.chat.ChattingRoom;
 
-public class CustomDialog extends Dialog {
+public class ModificationDialog extends Dialog {
     private OnDialogListener listener;
     private Context context;
     private Button mod_bt, cancle_bt;
     private EditText mod_name;
-    private String roomName;
+    private String roomName, roomId;
 
-    public CustomDialog(Context context, final int position, ChattingRoom chattingRoom) {
+    public ModificationDialog(Context context, final int position, ChattingRoom chattingRoom) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         setContentView(R.layout.custom_dialog);
 
         roomName = chattingRoom.getRoomName();
+        roomId = chattingRoom.getRoomId();
 
         mod_name = findViewById(R.id.mod_name);
         mod_name.setText(roomName);
@@ -36,8 +37,8 @@ public class CustomDialog extends Dialog {
             @Override
             public void onClick(View view) {
                 if(listener != null) {
-                    String name = mod_name.getText().toString();
-                    ChattingRoom chatRoom = new ChattingRoom(name, "");
+                    String newName = mod_name.getText().toString();
+                    ChattingRoom chatRoom = new ChattingRoom(newName, roomId);
 
                     listener.onFinish(position, chatRoom);
 

@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity android:name=".setting.ProfilePictureChangeActivity"></activity>
-        <activity android:name=".chat.swipe.NotificationActivity" />
+        <activity android:name=".chat.swipe.DeletionDialog" />
         <activity android:name=".ranChat.RandomChattingRoomActivity" />
         <activity android:name=".AddFriend.ReceiveFriendRequestActivity" />
         <activity android:name=".chat.addChatRoom.AddChatActivity" />
